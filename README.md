@@ -1,73 +1,161 @@
 # kit-pm-skills
 
-Claude Code plugin with PM workflow commands for Kit PMs.
+A Claude Code plugin for PMs — research-backed PRD drafting, critical review, and release note generation, personalised to your Linear workspace, feature areas, and writing style.
+
+---
+
+## Quick start
+
+```bash
+claude plugin install kit-pm-skills@github:scottjmitchell/kit-pm-skills
+```
+
+Then restart Claude Code and run setup:
+
+```bash
+/kit-pm-skills:setup
+```
+
+---
 
 ## Commands
 
 | Command | What it does |
 |---|---|
-| `/prd <topic>` | Runs parallel internal + competitive research, drafts a PRD, runs a critical review |
-| `/prd <ticket ID>` | Fetches an existing Linear ticket and produces a refined PRD from it |
-| `/shipped <feature>` | Gathers Linear context + docs, produces an internal Slack post and external developer release note |
+| `/kit-pm-skills:setup` | Personalises the plugin for your workspace — run this first |
+| `/kit-pm-skills:prd <topic>` | Researches and drafts a new PRD, then runs a critical review |
+| `/kit-pm-skills:prd <ticket ID>` | Fetches an existing Linear ticket and produces a refined PRD |
+| `/kit-pm-skills:shipped <feature>` | Generates an internal Slack post and external developer release note |
 
-## Install
+---
 
-```bash
-claude plugin install kit-pm@github:scottmitchell/kit-pm-skills
+## Setup
+
+`/setup` personalises the plugin for your workspace. Run it once after install, or re-run it any time to update your preferences.
+
+### What it asks
+
+1. **English preference** — British (the correct spelling) or American English
+2. **Linear team** — which team PRDs should be created in. Options are fetched live from your Linear workspace (falls back to manual entry if Linear isn't connected yet)
+3. **PRD label** — whether to apply a Squad label when creating PRDs in Linear. Squad label options are fetched live from the Linear `Squad` label group
+4. **Optional integrations** — Granola (tone of voice matching) and/or kit-docs (developer doc search)
+5. **Feature areas** — the areas you own, used to focus research in `/prd` and `/shipped`
+
+### What it creates
+
+| File | Purpose |
+|---|---|
+| `.claude/pm-skills/config.md` | Stores your preferences — read by `/prd` and `/shipped` at runtime |
+| `.claude/agents/lewis.md` | Personalised critical reviewer with your feature context and English preference |
+| `.claude/agents/copywriter.md` | Personalised writing editor with your English preference |
+| `.mcp.json` | Configured MCP servers (Linear always; Granola and kit-docs if selected) |
+| `prds/`, `shipped-notes/`, `.claude/state/` | Workspace directories |
+
+### MCP authentication
+
+Linear and Granola use OAuth. After setup, restart Claude Code — it will prompt you to authenticate in your browser on first use. kit-docs is public and requires no authentication.
+
+---
+
+## /prd
+
+Drafts a new PRD or refines an existing Linear ticket.
+
+### New PRD flow
+
+1. Asks 2–4 clarifying questions
+2. Runs two parallel research agents:
+   - **Internal context** — searches Linear, your `prds/` directory, and `my-features/` (if present), focused on your configured feature areas
+   - **Competitive research** — surveys ActiveCampaign, Mailchimp, Beehiiv, Klaviyo, and other relevant competitors
+3. Drafts the PRD using the bundled style guide and template, saved to `prds/`
+4. Runs a **lewis** critical review to surface blind spots and risks
+5. On approval, creates a Linear issue in your configured team with your configured Squad label
+
+### Revision flow
+
+Pass a Linear ticket ID (e.g. `/prd ECO-123`):
+
+1. Fetches the full ticket and related issues from Linear
+2. Drafts a refined PRD based on the ticket content and your instructions
+3. Runs a **lewis** critical review
+4. On approval, creates a Linear issue
+
+### PRD style
+
+PRDs follow the bundled style guide (`references/style-prd.md`): problem-first, British or American English per your preference, specific measurable goals, clear MVP scope, active voice.
+
+---
+
+## /shipped
+
+Generates release notes for a shipped feature in two formats: an internal Slack post for `#all-shipped`, and a concise external developer changelog entry.
+
+### Flow
+
+1. Runs three parallel data-gathering agents:
+   - **Linear context** — finds the shipped project or issue, collects all assignees to credit
+   - **PRDs & docs** — searches `prds/`, `my-features/`, and kit-docs (if configured) for context
+   - **Tone of voice** — fetches Granola meeting notes to match your natural writing style (skipped if Granola is not configured)
+2. Checks for any missing information and asks if needed
+3. Hands off to **copywriter** to produce both formats
+4. Saves to `shipped-notes/YYYY-MM-DD-feature-name.md` and opens it
+
+### Formats
+
+**Internal Slack post** — celebrates the ship for the whole team. Includes what shipped, the problem it solved, how it works, expected impact, and tracking links. Written in Slack mrkdwn, ready to copy-paste.
+
+**External developer release note** — tight and precise. One paragraph or a few bullets covering what's new, what it enables, and a link to docs. Written for third-party developers and technically-minded creators.
+
+---
+
+## Bundled agents
+
+These agents are included in the plugin and available in your workspace after install. Running `/setup` creates personalised versions in `.claude/agents/` that take precedence.
+
+| Agent | Model | Purpose |
+|---|---|---|
+| `lewis` | opus | Critical reviewer for PRDs, hypotheses, and strategy docs. Surfaces blind spots, weak assumptions, and risks using 🔴/🟡/🔵 severity ratings. |
+| `copywriter` | sonnet | Professional editor for PM writing. Polishes PRDs, Slack posts, emails, and release notes. Returns clean output only. |
+
+Both agents are aware of the bundled style guides and apply them when reviewing or editing relevant document types.
+
+---
+
+## Workspace structure
+
+The plugin creates required directories automatically. The optional `my-features/` directory is used by `/prd` and `/shipped` for additional internal context:
+
+```
+your-workspace/
+├── .claude/
+│   ├── agents/          # Personalised agent overrides (written by /setup)
+│   └── pm-skills/
+│       └── config.md    # Your preferences (written by /setup)
+├── prds/                # PRD markdown files
+├── shipped-notes/       # Release notes output
+└── my-features/         # (Optional) Feature area docs for internal research context
 ```
 
-Or from a local clone:
+---
+
+## References
+
+Style guides and templates are bundled in `references/` for human reading. The commands have the key rules inlined and don't depend on these files at runtime.
+
+| File | Contents |
+|---|---|
+| `references/style-prd.md` | PRD voice, tone, structure, and common mistakes |
+| `references/style-release-notes.md` | Release notes format for internal Slack and external changelog |
+| `references/prd-template.md` | Blank PRD template |
+
+---
+
+## Local development
+
+To load the plugin from a local directory without installing:
 
 ```bash
 claude --plugin-dir ~/path/to/kit-pm-skills
 ```
 
-## Workspace setup
-
-The commands expect this directory structure in your workspace root. They create missing directories automatically on first run, but you'll want to commit the empty folders:
-
-```
-your-workspace/
-├── prds/              # PRD markdown files
-├── shipped-notes/     # Release notes output
-└── my-features/       # (Optional) Feature area docs — used by /prd for internal context
-```
-
-## Required: Linear MCP
-
-Both commands use Linear to find tickets and projects. Make sure the Linear MCP server is configured in your workspace:
-
-```json
-// .mcp.json
-{
-  "linear-server": {
-    "type": "...",
-    "...": "..."
-  }
-}
-```
-
-## Optional: kit-docs MCP
-
-`/shipped` uses the `kit-docs` MCP to search developer documentation for API/plugin features. If you don't have it configured, this step is skipped automatically.
-
-## Optional: Granola MCP
-
-`/shipped` uses Granola meeting notes to match the author's tone of voice in release notes. If Granola isn't available, the command falls back to standard style guide guidance automatically.
-
-## After running /prd
-
-Once you're happy with the PRD, confirm it and the command will:
-1. Create a Linear issue in the **Product Backlog** team (status: Backlog)
-2. Use the PRD title as the issue title
-3. Open the issue in your browser
-
-If your team uses a different Linear team name, update the post-approval step in `commands/prd.md`.
-
-## References
-
-The `references/` directory contains the full style guides used by both commands. These are for human reference — the commands have the key rules inlined:
-
-- `references/style-prd.md` — PRD voice, tone, and formatting guide
-- `references/style-release-notes.md` — Release notes format guide (internal Slack + external changelog)
-- `references/prd-template.md` — Blank PRD template
+Note: when loaded this way, commands are still namespaced (e.g. `/kit-pm-skills:prd`).
