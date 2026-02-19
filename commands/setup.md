@@ -20,7 +20,21 @@ Check if `.claude/pm-skills/config.md` already exists. If it does, let the user 
 
 ---
 
-### Step 2: Ask round 1 questions
+### Step 2: Fetch Linear teams and Squad labels
+
+Before asking any questions, try to query Linear for real data.
+
+**Fetch teams:**
+Call the Linear MCP `list_teams` tool. Store the returned team names as `linear_teams`.
+
+**Fetch Squad labels:**
+Call the Linear MCP `list_issue_labels` tool. Filter the results to only labels where the group name is `Squad`. Store the label names as `squad_labels`.
+
+If either Linear MCP tool is unavailable or returns an error, store `null` for that value and continue — you'll fall back to free-text input for the affected questions.
+
+---
+
+### Step 3: Ask round 1 questions
 
 Use `AskUserQuestion` with these **4 questions**:
 
@@ -29,13 +43,15 @@ Use `AskUserQuestion` with these **4 questions**:
 - `American English`
 
 **Q2:** "Which Linear team should new PRDs be created in?"
-- `Product Backlog`
-- `Product Team Backlog`
-- `Engineering Backlog`
-- `Other — I'll type mine`
+
+- **If `linear_teams` is available:** use the fetched team names as options (up to 4). Always include `Other — I'll type mine` as the final option if there are fewer than 4 teams, or replace the last fetched option with it if there are more than 3.
+- **If `linear_teams` is null:** show these fallbacks:
+  - `Product Backlog`
+  - `Product Team Backlog`
+  - `Other — I'll type mine`
 
 **Q3:** "Should a label be applied to new PRDs when they're created in Linear?"
-- `Yes — I'll specify the label`
+- `Yes — I'll pick or type a label`
 - `No — skip labels`
 
 **Q4 (multiSelect):** "Which optional integrations do you want to configure?" *(select all that apply)*
@@ -46,11 +62,9 @@ Use `AskUserQuestion` with these **4 questions**:
 
 ---
 
-### Step 3: Ask round 2 questions
+### Step 4: Ask round 2 questions
 
-Always ask for feature areas. If they answered "Yes" to Q3, ask for the label name too.
-
-Use `AskUserQuestion` with:
+Always ask for feature areas. If they answered "Yes" to Q3, also ask for the label.
 
 **Q1:** "What feature areas do you own? Use 'Other' to type your own — be specific, as this focuses research in /prd and /shipped."
 - `Automations (visual automations, rules, webhooks, RSS)`
@@ -58,44 +72,48 @@ Use `AskUserQuestion` with:
 - `Email Sending (pipeline, deliverability, sequence scheduling)`
 - `Growth, monetisation, or subscriber acquisition`
 
-**If Q3 was "Yes", add:**
+**If Q3 was "Yes", add Q2:**
 
-**Q2:** "What's the full label name to apply to PRDs? Include the group name if relevant."
-- `Squad → [my team name] — I'll type it`
-- `Team → [my team name] — I'll type it`
-- `No label after all`
+"Which Squad label should be applied to new PRDs in Linear?"
+
+- **If `squad_labels` is available:** use the fetched label names as options (up to 3). Always include `Other — I'll type mine` as the final option.
+- **If `squad_labels` is null:** show:
+  - `I'll type the label name`
+  - `No label after all`
+
+If they select "Other" or "I'll type it", ask them to type the full label including group (e.g. `Squad → Ecosystem`).
 
 **Wait for the user's answers before continuing.**
 
 ---
 
-### Step 4: Write config file
+### Step 5: Write config file
 
-Write `.claude/pm-skills/config.md` with all collected values:
+Write `.claude/pm-skills/config.md`:
 
 ```markdown
 # PM Skills Config
 
 ## English
-preference: [British or American — from Q1]
+preference: [British or American]
 
 ## Linear
-prd_team: [team name — from Q2, or "Product Backlog" if Other was not filled]
-prd_label: [full label string — from round 2 Q2, or blank if skipped]
+prd_team: [team name]
+prd_label: [full label string, or blank if skipped]
 
 ## Feature Areas
-[Their answer from round 2 Q1 — paste verbatim]
+[Their answer verbatim]
 
 ## Integrations
-granola: [yes or no — from Q4]
-kit_docs: [yes or no — from Q4]
+granola: [yes or no]
+kit_docs: [yes or no]
 ```
 
 ---
 
-### Step 5: Write personalised copywriter agent
+### Step 6: Write personalised copywriter agent
 
-Write `.claude/agents/copywriter.md` with the following content, substituting `[ENGLISH]` with either `British` or `American` based on their Q1 answer:
+Write `.claude/agents/copywriter.md`, substituting `[ENGLISH]` with `British` or `American`:
 
 ```markdown
 ---
@@ -144,11 +162,9 @@ For release notes: Slack uses mrkdwn format (`*bold*`, `_italic_`, `•` bullets
 
 ---
 
-### Step 6: Write personalised lewis agent
+### Step 7: Write personalised lewis agent
 
-Write `.claude/agents/lewis.md` with the following content, substituting:
-- `[FEATURE_AREAS]` with their round 2 Q1 answer
-- `[ENGLISH]` with British or American from Q1
+Write `.claude/agents/lewis.md`, substituting `[FEATURE_AREAS]` and `[ENGLISH]`:
 
 ```markdown
 ---
@@ -191,7 +207,7 @@ The PM you're reviewing for owns these feature areas: **[FEATURE_AREAS]**
 
 Use this context to:
 - Apply domain-specific knowledge when reviewing their work
-- Flag risks specific to their feature area (e.g. API surface area, creator behaviour, email deliverability)
+- Flag risks specific to their feature area
 - Benchmark against relevant competitors in their space
 - Note dependencies on adjacent teams or features
 
@@ -214,11 +230,11 @@ When reviewing a PRD, apply the PRD style guide in the plugin's `references/styl
 
 ---
 
-### Step 7: Set up MCPs
+### Step 8: Set up MCPs
 
-Read `.mcp.json` in the current workspace if it exists. If it doesn't exist, start with `{"mcpServers": {}}`.
+Read `.mcp.json` if it exists. Start from `{"mcpServers": {}}` if not.
 
-**Always add Linear** if no `linear` or `linear-server` key exists in `mcpServers`:
+**Always add Linear** if no `linear` or `linear-server` key exists:
 ```json
 "linear": {
   "type": "http",
@@ -244,32 +260,30 @@ Read `.mcp.json` in the current workspace if it exists. If it doesn't exist, sta
 
 Write the merged result back to `.mcp.json`.
 
-**Note:** Linear and Granola use OAuth. When you next start Claude Code, they'll prompt you to authenticate in your browser. kit-docs is public and requires no authentication.
+> Linear and Granola use OAuth. On next launch, Claude Code will prompt you to authenticate in your browser. kit-docs is public — no auth needed.
 
 ---
 
-### Step 8: Confirm
-
-Print a clear summary:
+### Step 9: Confirm
 
 ```
 ✅ Setup complete
 
 Workspace configured:
-  📁 Directories created: prds/, shipped-notes/, .claude/state/
+  📁 Directories: prds/, shipped-notes/, .claude/state/
   🌍 English: [British/American]
   📋 Linear team for PRDs: [team name]
   🏷️  PRD label: [label or "none"]
   ✍️  Feature areas: [their answer]
 
 Agents personalised:
-  🤖 lewis — critical reviewer (saved to .claude/agents/lewis.md)
-  ✏️  copywriter — writing editor (saved to .claude/agents/copywriter.md)
+  🤖 lewis — critical reviewer (.claude/agents/lewis.md)
+  ✏️  copywriter — writing editor (.claude/agents/copywriter.md)
 
-MCPs configured in .mcp.json:
-  ✅ Linear (requires browser auth on next launch)
-  [✅ Granola (requires browser auth on next launch) — if selected]
-  [✅ kit-docs (no auth required) — if selected]
+MCPs configured (.mcp.json):
+  ✅ Linear (authenticate in browser on next launch)
+  [✅ Granola — if selected]
+  [✅ kit-docs — if selected]
 
 👉 Restart Claude Code for MCP changes to take effect.
 👉 Run /kit-pm-skills:prd or /kit-pm-skills:shipped to get started.
