@@ -10,10 +10,16 @@ Create a PRD (Product Requirements Document) based on: $ARGUMENTS
 
 ## Setup
 
-Before doing anything else, run:
-```bash
-mkdir -p prds .claude/state
-```
+Before doing anything else:
+
+1. Run: `mkdir -p prds .claude/state`
+2. Read `.claude/pm-skills/config.md` if it exists. Extract and store:
+   - `prd_team` — Linear team for PRD creation (default: `Product Backlog`)
+   - `prd_label` — Linear label to apply (default: none)
+   - `feature_areas` — PM's owned features (use to focus research)
+   - `english` — British or American (default: British)
+
+If the config file doesn't exist, use defaults and note that running `/setup` first will personalise the experience.
 
 ---
 
@@ -24,7 +30,7 @@ PRDs serve engineering, design, product marketing, support, and exec. A good PRD
 2. What are we building to solve it?
 3. How will we know if it worked?
 
-**Voice:** Problem-first. Confident but honest. British English. Active voice. No corporate speak.
+**Voice:** Problem-first. Confident but honest. Use the English spelling from config. Active voice. No corporate speak.
 
 **TL;DR:** One paragraph, no bullets. Lead with user pain, not the solution. Under 100 words.
 
@@ -151,6 +157,7 @@ Check:
 3. Feature docs: Check my-features/ in the current workspace if it exists.
 
 Topic: [user's topic and clarifying answers]
+PM's feature areas for context: [feature_areas from config, or "not configured"]
 
 Write findings to .claude/state/prd-research-internal.md
 Include: what exists today, what's in flight, relevant decisions or constraints.
@@ -269,7 +276,8 @@ Delete `.claude/state/prd-research-internal.md`
 ## Post-approval workflow (both paths)
 
 Once the user confirms the PRD looks good:
-1. Create a Linear issue with status **Backlog**
+1. Create a Linear issue in the team **`[prd_team from config]`** with status **Backlog**
 2. Use the PRD's H1 heading as the issue title
 3. Include the full PRD content in the description, **excluding the H1 title**
-4. Open the newly created issue in the user's browser
+4. If `prd_label` is set in config, apply that label to the issue
+5. Open the newly created issue in the user's browser

@@ -10,10 +10,15 @@ Generate release notes for a shipped feature: $ARGUMENTS
 
 ## Setup
 
-Before doing anything else, run:
-```bash
-mkdir -p shipped-notes .claude/state
-```
+Before doing anything else:
+
+1. Run: `mkdir -p shipped-notes .claude/state`
+2. Read `.claude/pm-skills/config.md` if it exists. Extract and store:
+   - `feature_areas` — used to focus PRD and docs search
+   - `granola` — `yes` or `no` (if `no`, skip the tone of voice agent entirely)
+   - `kit_docs` — `yes` or `no` (if `no`, skip the kit-docs MCP search in Agent 2)
+
+If the config file doesn't exist, proceed with all steps enabled.
 
 If `shipped-notes/MEMORY.md` exists, read it for context on past conventions before starting.
 
@@ -75,14 +80,16 @@ Include: project link, all issue IDs and titles, assignee names, project descrip
 Search for internal documentation related to this shipped feature: [USER'S INPUT]
 
 1. Check prds/ in the current workspace for related PRDs — glob for *.md files, grep for the feature name
-2. Search Kit developer documentation using the kit-docs MCP (SearchKitDeveloperDocumentation) if the feature has API, plugin, or developer-facing components — skip this step if kit-docs MCP is unavailable
+2. If kit-docs is configured (kit_docs: yes in config), search Kit developer documentation using the kit-docs MCP (SearchKitDeveloperDocumentation) for API, plugin, or developer-facing components
 3. Check my-features/ in the current workspace if it exists
+
+PM's feature areas for context: [feature_areas from config, or "not configured"]
 
 Write findings to .claude/state/shipped-docs.md
 Include: relevant PRD excerpts (problem statement, goals, key features), developer doc links, API/plugin details.
 ```
 
-**Agent 3 — Tone of Voice** *(skip gracefully if Granola MCP is unavailable)*
+**Agent 3 — Tone of Voice** *(only run if `granola: yes` in config, or config is missing)*
 
 ```
 Fetch recent meeting notes from Granola to extract the author's natural communication style and tone of voice.
@@ -93,14 +100,16 @@ Fetch recent meeting notes from Granola to extract the author's natural communic
    - Vocabulary and phrasing preferences
    - How features and impact/value are described
    - Level of formality vs. casual energy
-   - Sentence structure preferences (short/punchy vs. detailed)
+   - Sentence structure (short/punchy vs. detailed)
    - Level of enthusiasm and how it's expressed
 
-If Granola MCP tools are unavailable, write a note to .claude/state/shipped-tone.md saying "Granola unavailable — use standard team voice from style guide."
+If Granola MCP tools are unavailable, write a note to .claude/state/shipped-tone.md saying "Granola unavailable — use standard voice from style guide."
 
 Write findings to .claude/state/shipped-tone.md
 Include: a summary of tone patterns AND 3–5 representative excerpts that capture their voice.
 ```
+
+If `granola: no` in config, skip Agent 3 entirely and write `.claude/state/shipped-tone.md` with: "Granola not configured — using standard style guide voice."
 
 ### Step 2: Assess completeness
 
