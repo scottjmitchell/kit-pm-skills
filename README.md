@@ -63,10 +63,11 @@ Drafts a new PRD or refines an existing Linear ticket.
 
 ### New PRD flow
 
-1. Asks 2–4 clarifying questions
+1. Asks 2–4 clarifying questions, including:
+   - **Pricing & Packaging depth** — full assessment (for significant new features) or abridged one-liner (for iterations)
 2. Runs two parallel research agents:
    - **Internal context** — searches Linear, your `prds/` directory, and `my-features/` (if present), focused on your configured feature areas
-   - **Competitive research** — surveys ActiveCampaign, Mailchimp, Beehiiv, Klaviyo, and other relevant competitors
+   - **Competitive research** — surveys ActiveCampaign, Mailchimp, Beehiiv, Klaviyo, and other relevant competitors; includes which plan tiers each competitor gates the feature behind
 3. Drafts the PRD using the bundled style guide and template, saved to `prds/`
 4. Runs a **lewis** critical review to surface blind spots and risks
 5. On approval, creates a Linear issue in your configured team with your configured Squad label
@@ -83,6 +84,10 @@ Pass a Linear ticket ID (e.g. `/prd ECO-123`):
 ### PRD style
 
 PRDs follow the bundled style guide (`references/style-prd.md`): problem-first, British or American English per your preference, specific measurable goals, clear MVP scope, active voice.
+
+Every PRD includes a **Pricing & Packaging** section — either a full assessment (background questions, 2×2 quadrant, plan recommendation with rationale, competitor packaging table) or an abridged version (one-line recommendation + brief rationale), depending on the depth you select at the start. Plan principles are drawn from `references/pricing-packaging.md`.
+
+The **Launch Checklist** includes a DMF naming item that is auto-filled during drafting: recommended **Yes** for net new creator-facing features or significant overhauls, **No** for iterations.
 
 ---
 
@@ -130,7 +135,8 @@ your-workspace/
 ├── .claude/
 │   ├── agents/          # Personalised agent overrides (written by /setup)
 │   └── pm-skills/
-│       └── config.md    # Your preferences (written by /setup)
+│       ├── config.md              # Your preferences (written by /setup)
+│       └── pricing-packaging.md   # Plan principles reference (written by /setup)
 ├── prds/                # PRD markdown files
 ├── shipped-notes/       # Release notes output
 └── my-features/         # (Optional) Feature area docs for internal research context
@@ -147,6 +153,7 @@ Style guides and templates are bundled in `references/` for human reading. The c
 | `references/style-prd.md` | PRD voice, tone, structure, and common mistakes |
 | `references/style-release-notes.md` | Release notes format for internal Slack and external changelog |
 | `references/prd-template.md` | Blank PRD template |
+| `references/pricing-packaging.md` | Pricing & Packaging philosophy — background questions, 2×2 assessment, Free/Creator/Creator Pro plan principles, competitor packaging guidance |
 
 ---
 
