@@ -232,7 +232,7 @@ Run: `find ~/Projects ~/Developer ~/Code ~/Sites -maxdepth 4 -name "developer-do
 2. Create branch: `changelog/YYYY-MM-DD-feature-slug`
 3. Insert the `<Update>` block at the top of `changelog.mdx` (after frontmatter, before first existing entry)
 4. Commit (`changelog: add [feature name] entry`), push, open PR with `gh pr create --base main`
-5. Output the PR URL
+5. Output the PR URL and open it in the browser: `open <PR URL>`
 
 **Path not found → hand off via Slack:**
 Use the Slack MCP (`mcp__claude_ai_Slack__slack_send_message`) to post in `#ecosystem-talk`:
