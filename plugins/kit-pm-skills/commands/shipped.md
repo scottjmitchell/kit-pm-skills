@@ -22,6 +22,13 @@ If the config file doesn't exist, proceed with all steps enabled.
 
 If `shipped-notes/MEMORY.md` exists, read it for context on past conventions before starting.
 
+4. Use `AskUserQuestion` to ask:
+   > Does this feature need a developer changelog entry?
+   - **Yes — Slack post + developer changelog** (API changes, new endpoints, App Store/Plugin/Webhook updates, or anything developer-facing)
+   - **No — Slack post only**
+
+   Store the answer as `needs_dev_changelog: yes` or `needs_dev_changelog: no`.
+
 ---
 
 ## Release Notes Style Guide
@@ -45,7 +52,7 @@ If `shipped-notes/MEMORY.md` exists, read it for context on past conventions bef
 
 **Voice:** Celebratory but grounded. Accessible to non-technical readers. Active voice, present tense. Bold key terms.
 
-### External Developer Release Note
+### External Developer Release Note *(only if `needs_dev_changelog: yes`)*
 
 **Structure:** No headings. Tight paragraph or 3–5 bullets. Lead with what's new → what it enables → how to use it → link to docs.
 
@@ -159,7 +166,7 @@ Slack mrkdwn (not markdown): *bold*, _italic_, • bullets, `code`, <url|link te
 Voice: Celebratory but grounded. Accessible to non-technical readers. Active voice, present tense.
 Wrap the entire Slack post in a markdown code fence so it's easy to copy.
 
-### External Developer Release Note
+### External Developer Release Note *(only include if needs_dev_changelog: yes)*
 Structure: No headings. Tight paragraph or 3–5 bullets. Lead with what's new → what it enables → how to use it → docs link.
 Voice: Technically precise. Benefit-focused, no marketing fluff. Include endpoint paths, HTTP methods, OAuth requirements where relevant.
 Length: Extremely concise — changelog entry, not blog post.
@@ -181,7 +188,7 @@ Length: Extremely concise — changelog entry, not blog post.
 
 ---
 
-## External Developer Release Note
+## External Developer Release Note *(omit entire section if needs_dev_changelog: no)*
 
 [Developer-facing content]
 
@@ -199,7 +206,46 @@ Take the copywriter's output and:
 2. Save to `shipped-notes/`
 3. Open the file: `open shipped-notes/<filename>.md`
 
-### Step 5: Clean up
+### Step 5: Developer Changelog (optional)
+
+If `needs_dev_changelog: no`, skip this step entirely.
+
+If `needs_dev_changelog: yes`:
+
+**First, generate the `<Update>` block** from the External Developer Release Note and show it to the user for approval before doing anything else.
+
+```xml
+<Update label="Month YYYY" tags={["Tag1"]}>
+## EMOJI Title
+1–2 sentences or 2–4 bullets. Preserve all developers.kit.com links. No internal references.
+</Update>
+```
+Emoji: 🚀 Added · 🔧 Changed · 🐛 Fixed · ⚠️ Breaking
+Valid tags: `"API"`, `"Kit App Store"`, `"Plugins"`, `"Webhooks"`, `"SDK"`, `"Authentication"`, `"Documentation"`, `"Forms"`, `"Automation"`, `"Commerce"`, `"Analytics"`
+
+**Once approved, check whether the developer-documentation repo is available locally:**
+
+Run: `find ~/Projects ~/Developer ~/Code ~/Sites -maxdepth 4 -name "developer-documentation" -type d 2>/dev/null | head -1`
+
+**Path found → push it yourself:**
+1. `cd` into the found path, fetch origin, checkout main, pull
+2. Create branch: `changelog/YYYY-MM-DD-feature-slug`
+3. Insert the `<Update>` block at the top of `changelog.mdx` (after frontmatter, before first existing entry)
+4. Commit (`changelog: add [feature name] entry`), push, open PR with `gh pr create --base main`
+5. Output the PR URL
+
+**Path not found → hand off via Slack:**
+Use the Slack MCP (`mcp__claude_ai_Slack__slack_send_message`) to post in `#ecosystem-talk`:
+
+> Hey @scott / @imjohnbo — can one of you push this developer changelog entry for [feature name]? Just needs to go in `changelog.mdx` at the top of the Kit developer docs.
+>
+> ```
+> [the approved <Update> block]
+> ```
+
+If the Slack MCP is unavailable, display the message and ask the user to post it manually in `#ecosystem-talk`.
+
+### Step 6: Clean up
 
 Delete the temporary files:
 - `.claude/state/shipped-linear.md`
