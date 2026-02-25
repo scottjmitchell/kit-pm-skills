@@ -27,6 +27,7 @@ Then restart Claude Code and run setup:
 | `/kit-pm-skills:prd <topic>` | Researches and drafts a new PRD, then runs a critical review |
 | `/kit-pm-skills:prd <ticket ID>` | Fetches an existing Linear ticket and produces a refined PRD |
 | `/kit-pm-skills:shipped <feature>` | Generates an internal Slack post and external developer release note |
+| `/kit-pm-skills:api <request>` | Makes a Kit API request — sets up credentials on first use |
 
 ---
 
@@ -40,7 +41,7 @@ Then restart Claude Code and run setup:
 2. **Linear team** — which team PRDs should be created in. Options are fetched live from your Linear workspace (falls back to manual entry if Linear isn't connected yet)
 3. **PRD label** — whether to apply a Squad label when creating PRDs in Linear. Squad label options are fetched live from the Linear `Squad` label group
 4. **Issue or project** — whether approved PRDs are created as Linear issues (default) or projects
-5. **Optional integrations** — Granola (tone of voice matching) and/or kit-docs (developer doc search)
+5. **Optional integrations** — Granola (tone of voice matching), kit-docs (developer doc search), and/or Kit API (credentials for `/api`)
 6. **Feature areas** — the areas you own, used to focus research in `/prd` and `/shipped`
 
 ### What it creates
@@ -48,14 +49,55 @@ Then restart Claude Code and run setup:
 | File | Purpose |
 |---|---|
 | `.claude/pm-skills/config.md` | Stores your preferences (English, Linear team, label, issue vs project, feature areas) — read by `/prd` and `/shipped` at runtime |
+| `.claude/pm-skills/api.env` | Kit API credentials — API key and OAuth tokens (gitignored automatically) |
 | `.claude/agents/lewis.md` | Personalised critical reviewer with your feature context and English preference |
 | `.claude/agents/copywriter.md` | Personalised writing editor with your English preference |
-| `.mcp.json` | Configured MCP servers (Linear always; Granola and kit-docs if selected) |
+| `.mcp.json` | Configured MCP servers (Linear always; Granola, kit-docs, and Kit API if selected) |
 | `prds/`, `shipped-notes/`, `.claude/state/` | Workspace directories |
 
 ### MCP authentication
 
 Linear and Granola use OAuth. After setup, restart Claude Code — it will prompt you to authenticate in your browser on first use. kit-docs is public and requires no authentication.
+
+---
+
+## /api
+
+Makes Kit API requests in plain English — no curl commands or auth headers required.
+
+### First-time setup
+
+On first use, `/api` runs a setup wizard:
+
+1. **API key** — prompts you to paste your v4 API key from [Developer Settings](https://app.kit.com/account_settings/developer_settings) (opens the page automatically)
+2. **OAuth** (optional) — walks you through creating a Kit App for PKCE OAuth, generates a local callback server script, and runs the browser auth flow automatically
+3. **Credentials saved** to `.claude/pm-skills/api.env` (gitignored automatically)
+4. **kit-docs MCP** added to `.mcp.json` if not already present
+
+You can also configure API credentials during `/setup` by selecting "Kit API" in the optional integrations step.
+
+### Authentication
+
+| Endpoint type | Auth used |
+|---|---|
+| Most GET / POST / PUT / DELETE | API key |
+| `/v4/bulk/*`, purchase creation | OAuth Bearer token |
+
+The command detects which auth type each endpoint requires and uses the right one automatically. If an OAuth token expires, it refreshes using the stored refresh token and retries without interrupting you.
+
+### Write operations
+
+For any request that creates, updates, or deletes data, `/api` shows you exactly what it's about to send — endpoint, method, and full request body — and asks for approval before executing.
+
+### Examples
+
+```
+/api list my subscribers
+/api create a subscriber with email hello@example.com and first name Sam
+/api tag subscriber 12345 with the "newsletter" tag
+/api show me my broadcast stats
+/api bulk import subscribers from this CSV: name,email\nSam,sam@example.com
+```
 
 ---
 
@@ -123,8 +165,9 @@ These agents are included in the plugin and available in your workspace after in
 |---|---|---|
 | `lewis` | opus | Critical reviewer for PRDs, hypotheses, and strategy docs. Surfaces blind spots, weak assumptions, and risks using 🔴/🟡/🔵 severity ratings. |
 | `copywriter` | sonnet | Professional editor for PM writing. Polishes PRDs, Slack posts, emails, and release notes. Returns clean output only. |
+| `coder` | sonnet | Kit API specialist. Executes API requests via curl, handles OAuth token refresh, parses responses, and checks endpoint docs via kit-docs MCP before every call. Used by `/api`. |
 
-Both agents are aware of the bundled style guides and apply them when reviewing or editing relevant document types.
+`lewis` and `copywriter` are aware of the bundled style guides and apply them when reviewing or editing relevant document types. Running `/setup` creates personalised versions of `lewis` and `copywriter` in `.claude/agents/` — if you already have a `coder` agent in your workspace, that takes precedence over the plugin's version.
 
 ---
 
@@ -136,9 +179,13 @@ The plugin creates required directories automatically. The optional `my-features
 your-workspace/
 ├── .claude/
 │   ├── agents/          # Personalised agent overrides (written by /setup)
+│   ├── .gitignore       # Auto-created to protect api.env and OAuth certs
 │   └── pm-skills/
 │       ├── config.md              # Your preferences (written by /setup)
-│       └── pricing-packaging.md   # Plan principles reference (written by /setup)
+│       ├── pricing-packaging.md   # Plan principles reference (written by /setup)
+│       ├── api.env                # Kit API credentials — API key + OAuth tokens (gitignored)
+│       ├── kit-oauth.js           # OAuth PKCE callback server (generated by /api on first OAuth setup)
+│       └── certs/                 # Self-signed cert for local HTTPS OAuth callback (gitignored)
 ├── prds/                # PRD markdown files
 ├── shipped-notes/       # Release notes output
 └── my-features/         # (Optional) Feature area docs for internal research context
