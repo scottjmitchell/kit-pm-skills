@@ -18,6 +18,7 @@ Before doing anything else:
    - `prd_label` — Linear label to apply (default: none)
    - `feature_areas` — PM's owned features (use to focus research)
    - `english` — British or American (default: British)
+3. Read `.claude/pm-skills/pricing-packaging.md` if it exists — contains plan principles used to fill the Pricing & Packaging section
 
 If the config file doesn't exist, use defaults and note that running `/setup` first will personalise the experience.
 
@@ -93,6 +94,38 @@ PRDs serve engineering, design, product marketing, support, and exec. A good PRD
 
 ---
 
+## Pricing & Packaging
+
+### Feature Assessment
+| Question | Response | Notes |
+|---|---|---|
+| What does this feature help creators do? | | |
+| Highly requested? | Yes / No | |
+| Primary creator segment? | Just starting out / Established / Enterprise / All | |
+| Advanced versions planned? | Yes / No | |
+| Differentiation level? | Table stakes / Critical / Differentiating | |
+| Annual cost to Kit? | Free / Low / Medium / High | |
+
+**Quadrant:** [Table-stakes / Differentiator / Nice-to-have / Dissatisfier — 1–2 sentence rationale]
+
+### Plan Recommendation
+**Recommended plan:** [Free / Creator / Creator Pro / All plans]
+
+**Rationale:** [Which plan principles does this satisfy? Be specific.]
+
+### Competitor Packaging
+[How do key competitors package this feature? Which plan tiers gate access? Any usage limits at lower tiers?]
+
+> **Abridged alternative** (for smaller iterations/improvements — use instead of the full section above):
+>
+> ```markdown
+> ## Pricing & Packaging
+> **Recommended plan:** [Free / Creator / Creator Pro / All plans]
+> **Rationale:** [1–2 sentences: which plan principles this satisfies and any relevant competitor context]
+> ```
+
+---
+
 ## Launch
 
 ### Launch Checklist
@@ -108,6 +141,7 @@ PRDs serve engineering, design, product marketing, support, and exec. A good PRD
 **Product Marketing**
 - [ ] Announcement needed?
 - [ ] Onboarding experience needed?
+- [ ] Does this feature need a name? (DMF) — **Recommended: Yes / No** — [rationale]
 
 **Plans**
 - [ ] Available on certain plans only?
@@ -135,6 +169,8 @@ PRDs serve engineering, design, product marketing, support, and exec. A good PRD
 ### 2. Ask clarifying questions
 
 Ask 2–4 questions to understand the problem, affected users, constraints, and known success metrics.
+
+Also ask: **Pricing & Packaging depth** — Is this a significant new feature or capability (→ use the full P&P assessment with background table, quadrant, plan recommendation, and competitor packaging), or a smaller iteration/improvement on an existing feature (→ use the abridged version: one-line plan recommendation with brief rationale)?
 
 **Wait for the user's answers before proceeding.**
 
@@ -175,6 +211,7 @@ Cover:
 - Key UX patterns and plan gating decisions
 - Why users need this (creator economy context, pain at scale)
 - What Kit could learn from or differentiate against
+- Which plan tier(s) each competitor gates this feature behind (free, basic, paid, enterprise) — and any usage limits by tier
 
 Topic: [user's topic and clarifying answers]
 
@@ -193,10 +230,11 @@ After both agents return, read:
 Draft the PRD using the template and guidelines above:
 - Thorough **Problem Alignment** grounded in the research
 - Informed **Solution Alignment** with clear MVP scope
-- Leave **Launch** section as template checkboxes
+- Leave **Launch** section as template checkboxes — **exception:** fill in the DMF naming item with a recommendation: **Yes** if this is a net new creator-facing feature or a significant overhaul where rebranding would add marketing value; **No** for iterations on existing features. Include a one-sentence rationale.
 - Note data gaps explicitly rather than making up numbers
+- For the **Pricing & Packaging** section, use `.claude/pm-skills/pricing-packaging.md` to apply the correct plan principles. Use the **full** assessment (background table + quadrant + plan recommendation + competitor packaging) if the user indicated this is a significant new feature; use the **abridged** version (one-line recommendation + brief rationale) if it's a smaller iteration. Draw on the competitive research for the Competitor Packaging sub-section when using the full format.
 - Save to `prds/` with a kebab-case filename (e.g. `prds/automation-folders.md`)
-- Open with `open prds/<filename>.md`
+- Open with `code prds/<filename>.md` then run `code --command markdown.showPreviewToSide`
 
 ### A3. Critical review
 
@@ -250,8 +288,9 @@ Using the existing ticket content, the user's revision instructions, and the tem
 - Rewrite the PRD with the changes requested
 - Preserve what's already good
 - Note open issues that need team input
+- For the **Pricing & Packaging** section, use `.claude/pm-skills/pricing-packaging.md` to apply the correct plan principles. Use the **full** assessment if the user indicated this is a significant new feature; use the **abridged** version if it's a smaller iteration — fill in what can be inferred from the existing ticket content
 - Save to `prds/` with a kebab-case filename
-- Open with `open prds/<filename>.md`
+- Open with `code prds/<filename>.md` then run `code --command markdown.showPreviewToSide`
 
 ### B3. Critical review
 
