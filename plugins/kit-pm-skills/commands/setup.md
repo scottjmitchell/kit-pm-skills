@@ -60,7 +60,8 @@ Use `AskUserQuestion` with these **5 questions**:
 
 **Q5 (multiSelect):** "Which optional integrations do you want to configure?" *(select all that apply)*
 - `Granola — match your tone of voice in release notes`
-- `kit-docs — search developer docs when writing release notes`
+- `kit-docs — search Kit developer docs (used by /api and release notes)`
+- `Kit API — set up credentials for /api (API key + optional OAuth for bulk endpoints)`
 
 **Wait for the user's answers before continuing.**
 
@@ -266,6 +267,81 @@ Read `.mcp.json` if it exists. Start from `{"mcpServers": {}}` if not.
 Write the merged result back to `.mcp.json`.
 
 > Linear and Granola use OAuth. On next launch, Claude Code will prompt you to authenticate in your browser. kit-docs is public — no auth needed.
+
+---
+
+### Step 8b: Set up Kit API credentials (only if "Kit API" was selected in Q5)
+
+Run:
+```bash
+mkdir -p .claude/pm-skills
+```
+
+#### API key
+
+Open the page for the user:
+```bash
+open "https://app.kit.com/account_settings/developer_settings" 2>/dev/null || xdg-open "https://app.kit.com/account_settings/developer_settings" 2>/dev/null || true
+```
+
+Tell the user:
+```
+Get your v4 API key:
+1. Scroll to "API Keys" in the page that just opened
+2. Copy your v4 key
+```
+
+Use `AskUserQuestion` to ask: "Paste your Kit API key:"
+
+Save to `.claude/pm-skills/api.env`:
+```
+KIT_API_KEY=<their key>
+```
+
+#### OAuth (ask if they want it)
+
+Use `AskUserQuestion`:
+
+"Do you also want to set up OAuth? This enables bulk endpoints (/bulk/subscribers, etc.) — you can skip this and set it up later via `/api`."
+- `Set up OAuth now`
+- `Skip — API key is enough for now`
+
+**If "Set up OAuth now":**
+
+Open the page for the user:
+```bash
+open "https://app.kit.com/account_settings/developer_settings" 2>/dev/null || xdg-open "https://app.kit.com/account_settings/developer_settings" 2>/dev/null || true
+```
+
+Tell the user:
+```
+You'll need to create a Kit App (in the page that just opened):
+1. Click "Add new app", name it anything (e.g. "Claude API Helper")
+2. Set redirect URI to: https://localhost:3333/callback
+3. Toggle OFF "Secure Application" (enables PKCE — no client secret needed)
+4. Save and copy your Client ID
+```
+
+Use `AskUserQuestion` to ask: "What is your Kit Client ID?"
+
+Add to `.claude/pm-skills/api.env`:
+```
+KIT_CLIENT_ID=<their client id>
+```
+
+Tell the user:
+> OAuth token setup requires running a local server — you can complete it by running `/api` for the first time after setup. The `/api` command will detect the Client ID and walk you through the browser authorization flow.
+
+**Protect credentials — check `.claude/.gitignore`:**
+
+If `.claude/.gitignore` exists, check if `pm-skills/api.env` is covered. If not, append:
+```
+pm-skills/api.env
+pm-skills/certs/
+pm-skills/kit-oauth.js
+```
+
+If `.claude/.gitignore` doesn't exist, create it with those three lines.
 
 ---
 
