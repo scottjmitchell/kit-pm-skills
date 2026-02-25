@@ -7,7 +7,8 @@ A Claude Code plugin for PMs — research-backed PRD drafting, critical review, 
 ## Quick start
 
 ```bash
-claude plugin install kit-pm-skills@github:scottjmitchell/kit-pm-skills
+claude plugin marketplace add scottjmitchell/kit-pm-skills
+claude plugin install kit-pm-skills
 ```
 
 Then restart Claude Code and run setup:
@@ -163,7 +164,7 @@ Style guides and templates are bundled in `references/` for human reading. The c
 To load the plugin from a local directory without installing:
 
 ```bash
-claude --plugin-dir ~/path/to/kit-pm-skills
+claude --plugin-dir ~/path/to/kit-pm-skills/plugins/kit-pm-skills
 ```
 
 Note: when loaded this way, commands are still namespaced (e.g. `/kit-pm-skills:prd`).
