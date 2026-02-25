@@ -16,6 +16,7 @@ Before doing anything else:
 2. Read `.claude/pm-skills/config.md` if it exists. Extract and store:
    - `prd_team` — Linear team for PRD creation (default: `Product Backlog`)
    - `prd_label` — Linear label to apply (default: none)
+   - `prd_create_as` — whether to create as `issues` or `projects` (default: `issues`)
    - `feature_areas` — PM's owned features (use to focus research)
    - `english` — British or American (default: British)
 3. Read `.claude/pm-skills/pricing-packaging.md` if it exists — contains plan principles used to fill the Pricing & Packaging section
@@ -315,8 +316,17 @@ Delete `.claude/state/prd-research-internal.md`
 ## Post-approval workflow (both paths)
 
 Once the user confirms the PRD looks good:
+
+**If `prd_create_as` is `issues` (default):**
 1. Create a Linear issue in the team **`[prd_team from config]`** with status **Backlog**
 2. Use the PRD's H1 heading as the issue title
 3. Include the full PRD content in the description, **excluding the H1 title**
 4. If `prd_label` is set in config, apply that label to the issue
 5. Open the newly created issue in the user's browser
+
+**If `prd_create_as` is `projects`:**
+1. Create a Linear project in the team **`[prd_team from config]`**
+2. Use the PRD's H1 heading as the project name
+3. Include the full PRD content in the project description, **excluding the H1 title**
+4. If `prd_label` is set in config, apply that label to the project
+5. Open the newly created project in the user's browser

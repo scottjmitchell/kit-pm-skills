@@ -36,7 +36,7 @@ If either Linear MCP tool is unavailable or returns an error, store `null` for t
 
 ### Step 3: Ask round 1 questions
 
-Use `AskUserQuestion` with these **4 questions**:
+Use `AskUserQuestion` with these **5 questions**:
 
 **Q1:** "Which English spelling do you prefer?"
 - `British (the correct spelling)`
@@ -54,7 +54,11 @@ Use `AskUserQuestion` with these **4 questions**:
 - `Yes — I'll pick or type a label`
 - `No — skip labels`
 
-**Q4 (multiSelect):** "Which optional integrations do you want to configure?" *(select all that apply)*
+**Q4:** "When a PRD is approved, should it be created as a Linear issue or project?"
+- `Issue — creates a ticket in the team backlog (default)`
+- `Project — creates a Linear project`
+
+**Q5 (multiSelect):** "Which optional integrations do you want to configure?" *(select all that apply)*
 - `Granola — match your tone of voice in release notes`
 - `kit-docs — search developer docs when writing release notes`
 
@@ -100,6 +104,7 @@ preference: [British or American]
 ## Linear
 prd_team: [team name]
 prd_label: [full label string, or blank if skipped]
+prd_create_as: [issues or projects]
 
 ## Feature Areas
 [Their answer verbatim]
@@ -274,6 +279,7 @@ Workspace configured:
   🌍 English: [British/American]
   📋 Linear team for PRDs: [team name]
   🏷️  PRD label: [label or "none"]
+  📌 PRDs created as: [issues or projects]
   ✍️  Feature areas: [their answer]
 
 Agents personalised:
