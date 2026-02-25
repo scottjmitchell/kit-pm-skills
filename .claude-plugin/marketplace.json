@@ -1,0 +1,23 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "kit-pm-skills",
+  "description": "PM workflow commands for Kit — research-backed PRD drafting with critical review, and release note generation for shipped features",
+  "owner": {
+    "name": "Scott Mitchell",
+    "email": "scott@kit.com"
+  },
+  "plugins": [
+    {
+      "name": "kit-pm-skills",
+      "description": "PM workflow commands for Kit — generate PRDs with parallel research and critical review, and produce internal/external release notes for shipped features",
+      "version": "1.1.0",
+      "author": {
+        "name": "Scott Mitchell",
+        "email": "scott@kit.com"
+      },
+      "source": "./plugins/kit-pm-skills",
+      "category": "productivity",
+      "strict": false
+    }
+  ]
+}
