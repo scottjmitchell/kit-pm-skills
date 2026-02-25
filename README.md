@@ -38,14 +38,15 @@ Then restart Claude Code and run setup:
 1. **English preference** — British (the correct spelling) or American English
 2. **Linear team** — which team PRDs should be created in. Options are fetched live from your Linear workspace (falls back to manual entry if Linear isn't connected yet)
 3. **PRD label** — whether to apply a Squad label when creating PRDs in Linear. Squad label options are fetched live from the Linear `Squad` label group
-4. **Optional integrations** — Granola (tone of voice matching) and/or kit-docs (developer doc search)
-5. **Feature areas** — the areas you own, used to focus research in `/prd` and `/shipped`
+4. **Issue or project** — whether approved PRDs are created as Linear issues (default) or projects
+5. **Optional integrations** — Granola (tone of voice matching) and/or kit-docs (developer doc search)
+6. **Feature areas** — the areas you own, used to focus research in `/prd` and `/shipped`
 
 ### What it creates
 
 | File | Purpose |
 |---|---|
-| `.claude/pm-skills/config.md` | Stores your preferences — read by `/prd` and `/shipped` at runtime |
+| `.claude/pm-skills/config.md` | Stores your preferences (English, Linear team, label, issue vs project, feature areas) — read by `/prd` and `/shipped` at runtime |
 | `.claude/agents/lewis.md` | Personalised critical reviewer with your feature context and English preference |
 | `.claude/agents/copywriter.md` | Personalised writing editor with your English preference |
 | `.mcp.json` | Configured MCP servers (Linear always; Granola and kit-docs if selected) |
