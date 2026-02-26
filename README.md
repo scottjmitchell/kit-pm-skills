@@ -27,6 +27,7 @@ Then restart Claude Code and run setup:
 | `/kit-pm-skills:prd <topic>` | Researches and drafts a new PRD, then runs a critical review |
 | `/kit-pm-skills:prd <ticket ID>` | Fetches an existing Linear ticket and produces a refined PRD |
 | `/kit-pm-skills:shipped <feature>` | Generates an internal Slack post and external developer release note |
+| `/kit-pm-skills:kb <feature>` | Drafts a structured KB briefing for the support/docs team |
 
 ---
 
@@ -40,14 +41,15 @@ Then restart Claude Code and run setup:
 2. **Linear team** — which team PRDs should be created in. Options are fetched live from your Linear workspace (falls back to manual entry if Linear isn't connected yet)
 3. **PRD label** — whether to apply a Squad label when creating PRDs in Linear. Squad label options are fetched live from the Linear `Squad` label group
 4. **Issue or project** — whether approved PRDs are created as Linear issues (default) or projects
-5. **Optional integrations** — Granola (tone of voice matching) and/or kit-docs (developer doc search)
-6. **Feature areas** — the areas you own, used to focus research in `/prd` and `/shipped`
+5. **Editor / IDE** — VS Code, Cursor, Zed, or system default (`open`/`xdg-open`). Used by `/prd`, `/shipped`, and `/kb` to open output files
+6. **Optional integrations** — Granola (tone of voice matching) and/or kit-docs (developer doc search)
+7. **Feature areas** — the areas you own, used to focus research in `/prd` and `/shipped`
 
 ### What it creates
 
 | File | Purpose |
 |---|---|
-| `.claude/pm-skills/config.md` | Stores your preferences (English, Linear team, label, issue vs project, feature areas) — read by `/prd` and `/shipped` at runtime |
+| `.claude/pm-skills/config.md` | Stores your preferences (English, editor, Linear team, label, issue vs project, feature areas) — read by `/prd`, `/shipped`, and `/kb` at runtime |
 | `.claude/agents/lewis.md` | Personalised critical reviewer with your feature context and English preference |
 | `.claude/agents/copywriter.md` | Personalised writing editor with your English preference |
 | `.mcp.json` | Configured MCP servers (Linear always; Granola and kit-docs if selected) |
@@ -115,6 +117,50 @@ Generates release notes for a shipped feature in two formats: an internal Slack 
 
 ---
 
+## /kb
+
+Drafts a structured Knowledge Base briefing for the support/docs writing team, covering everything they need to produce or update a help article — without coming back to the PM with questions.
+
+### Flow
+
+1. Asks what the feature or change is (if not provided as an argument)
+2. Determines release type: **new feature** or **feature update**
+3. Collects all missing details in a single question round:
+   - How it works (step-by-step, including conditional paths and plan-tier differences)
+   - Audience (which creators are affected)
+   - Release date
+   - 3–5 questions creators are likely to ask
+   - *(For updates only)* what changed before/after, creator implications, and links to existing KB articles
+4. Fetches any existing KB article URLs provided to understand current content structure
+5. Drafts the briefing using the bundled style guide (`references/communication-styles/style-kb.md`)
+6. Runs a **lewis** critical review to check completeness, clarity, and FAQ coverage from the writer's perspective
+7. Saves to `kb-briefings/YYYY-MM-DD-feature-name.md` and opens it
+
+### Output formats
+
+**New feature briefing** — includes: purpose of the article, audience, step-by-step how-it-works, FAQs to anticipate, screenshots needed, and messaging priorities.
+
+**Feature update briefing** — includes: background (what existed before), what changed (before/after), implications for existing users, FAQs, documentation update guidance per article (with specific section-level edit instructions), and screenshots needed.
+
+### Example usage
+
+```bash
+/kit-pm-skills:kb visual automation branching
+/kit-pm-skills:kb RSS feed auto-publishing for sequences
+/kb              # prompts you to describe the feature
+```
+
+### Style guide
+
+KB briefings follow the bundled style guide at `references/communication-styles/style-kb.md`. Key principles:
+
+- Navigation paths written in full (e.g. `Automations → Rules → Add Rule`)
+- Plan-tier differences called out explicitly at every step
+- FAQs framed as the exact question a creator would type into search
+- For updates: old text and replacement text quoted where possible, not just described
+
+---
+
 ## Bundled agents
 
 These agents are included in the plugin and available in your workspace after install. Running `/setup` creates personalised versions in `.claude/agents/` that take precedence.
@@ -141,6 +187,7 @@ your-workspace/
 │       └── pricing-packaging.md   # Plan principles reference (written by /setup)
 ├── prds/                # PRD markdown files
 ├── shipped-notes/       # Release notes output
+├── kb-briefings/        # KB briefing output (created by /kb)
 └── my-features/         # (Optional) Feature area docs for internal research context
 ```
 
@@ -156,6 +203,7 @@ Style guides and templates are bundled in `references/` for human reading. The c
 | `references/style-release-notes.md` | Release notes format for internal Slack and external changelog |
 | `references/prd-template.md` | Blank PRD template |
 | `references/pricing-packaging.md` | Pricing & Packaging philosophy — background questions, 2×2 assessment, Free/Creator/Creator Pro plan principles, competitor packaging guidance |
+| `references/communication-styles/style-kb.md` | KB briefing templates and writing guidelines for new features and feature updates |
 
 ---
 

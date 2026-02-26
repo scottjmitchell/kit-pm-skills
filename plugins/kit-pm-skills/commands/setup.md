@@ -36,7 +36,7 @@ If either Linear MCP tool is unavailable or returns an error, store `null` for t
 
 ### Step 3: Ask round 1 questions
 
-Use `AskUserQuestion` with these **5 questions**:
+Use `AskUserQuestion` with these **6 questions**:
 
 **Q1:** "Which English spelling do you prefer?"
 - `British (the correct spelling)`
@@ -58,7 +58,13 @@ Use `AskUserQuestion` with these **5 questions**:
 - `Issue — creates a ticket in the team backlog (default)`
 - `Project — creates a Linear project`
 
-**Q5 (multiSelect):** "Which optional integrations do you want to configure?" *(select all that apply)*
+**Q5:** "Which text editor or IDE do you use?"
+- `VS Code — opens files with 'code'`
+- `Cursor — opens files with 'cursor'`
+- `Zed — opens files with 'zed'`
+- `System default — uses 'open' (macOS) or 'xdg-open' (Linux)`
+
+**Q6 (multiSelect):** "Which optional integrations do you want to configure?" *(select all that apply)*
 - `Granola — match your tone of voice in release notes`
 - `kit-docs — search Kit developer docs (used by /api and release notes)`
 - `Kit API — set up credentials for /api (API key + optional OAuth for bulk endpoints)`
@@ -101,6 +107,9 @@ Write `.claude/pm-skills/config.md`:
 
 ## English
 preference: [British or American]
+
+## Editor
+preference: [vscode / cursor / zed / system]
 
 ## Linear
 prd_team: [team name]
@@ -353,6 +362,7 @@ If `.claude/.gitignore` doesn't exist, create it with those three lines.
 Workspace configured:
   📁 Directories: prds/, shipped-notes/, .claude/state/
   🌍 English: [British/American]
+  🖊️  Editor: [VS Code / Cursor / Zed / System default]
   📋 Linear team for PRDs: [team name]
   🏷️  PRD label: [label or "none"]
   📌 PRDs created as: [issues or projects]
