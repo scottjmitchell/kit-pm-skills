@@ -18,11 +18,21 @@ Before doing anything else:
    - `granola` — `yes` or `no` (if `no`, skip the tone of voice agent entirely)
    - `kit_docs` — `yes` or `no` (if `no`, skip the kit-docs MCP search in Agent 2)
 
-If the config file doesn't exist, proceed with all steps enabled.
-
 If `shipped-notes/MEMORY.md` exists, read it for context on past conventions before starting.
 
-4. Use `AskUserQuestion` to ask:
+### Config check
+
+If any of the following are missing or empty, ask for them in a single `AskUserQuestion` call before proceeding. Skip entirely if all are present.
+
+| Key | Question to ask | Options |
+|---|---|---|
+| `feature_areas` | "What feature areas do you own? (Used to focus docs and PRD search)" | "Automations" / "Extensibility" / "Email Sending" / "Other — I'll describe mine" |
+| `granola` | "Do you want to use Granola to match your tone of voice in release notes?" | "Yes — match my Granola meeting style" / "No — use standard voice" |
+| `kit_docs` | "Should release notes search Kit developer docs for API/plugin context?" | "Yes — I have kit-docs configured" / "No — skip" |
+
+After collecting answers, update `.claude/pm-skills/config.md`: add missing keys using the same format as existing entries. Don't reformat or remove existing values.
+
+3. Use `AskUserQuestion` to ask:
    > Does this feature need a developer changelog entry?
    - **Yes — Slack post + developer changelog** (API changes, new endpoints, App Store/Plugin/Webhook updates, or anything developer-facing)
    - **No — Slack post only**

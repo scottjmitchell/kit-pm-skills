@@ -10,10 +10,24 @@ Draft and create a Linear ticket from: $ARGUMENTS
 
 ## Setup
 
-Read `.claude/pm-skills/config.md` if it exists. Extract and store:
-- `ticket_team` — default Linear team for tickets. Fall back to `prd_team` if not set, then `Product Backlog` if neither is set.
-- `prd_label` — label to apply (default: none)
-- `english` — British or American (default: British)
+1. Run: `mkdir -p .claude/pm-skills .claude/state`
+2. Read `.claude/pm-skills/config.md` if it exists. Extract and store:
+   - `ticket_team` — default Linear team for tickets. Fall back to `prd_team` if not set, then `Product Backlog` if neither is set.
+   - `prd_label` — label to apply (default: none)
+   - `english` — British or American (default: British)
+
+### Config check
+
+If any of the following are missing or empty (and no valid fallback exists), collect them before proceeding. Skip entirely if all are present or can be resolved from fallbacks.
+
+For `ticket_team`, only ask if both `ticket_team` and `prd_team` are absent — if `prd_team` is set, use it as the fallback silently. For team options, fetch from Linear first using `list_teams` if available.
+
+| Key | Question to ask | Options |
+|---|---|---|
+| `ticket_team` (no `prd_team` fallback) | "Which Linear team should /ticket create issues in by default?" | Fetched teams + "Other — I'll type mine" |
+| `english` | "Which English spelling do you prefer?" | "British (the correct spelling)" / "American English" |
+
+After collecting answers, update `.claude/pm-skills/config.md`: add missing keys using the same format as existing entries. Don't reformat or remove existing values.
 
 ---
 

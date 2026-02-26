@@ -21,7 +21,22 @@ Before doing anything else:
    - `english` — British or American (default: British)
 3. Read `.claude/pm-skills/pricing-packaging.md` if it exists — contains plan principles used to fill the Pricing & Packaging section
 
-If the config file doesn't exist, use defaults and note that running `/setup` first will personalise the experience.
+### Config check
+
+If any of the following are missing or empty, collect them before proceeding. Skip entirely if all are present.
+
+For any missing team or label keys, fetch options from Linear first (use `list_teams` for teams, `list_issue_labels` filtered to Squad group for labels). Then ask for all missing items in a single `AskUserQuestion` call (batch up to 4 questions at once).
+
+| Key | Question to ask | Options |
+|---|---|---|
+| `prd_team` | "Which Linear team should new PRDs be created in?" | Fetched teams + "Other — I'll type mine" |
+| `prd_create_as` | "Should approved PRDs be created as Linear issues or projects?" | "Issue (default)" / "Project" |
+| `english` | "Which English spelling do you prefer?" | "British (the correct spelling)" / "American English" |
+| `feature_areas` | "What feature areas do you own? (Used to focus research)" | "Automations" / "Extensibility" / "Email Sending" / "Other — I'll describe mine" |
+
+`prd_label` is optional — only ask if the user has previously indicated they want one, or if no label is set and it seems relevant. Don't interrupt the flow for it.
+
+After collecting answers, update `.claude/pm-skills/config.md`: add missing keys using the same format as existing entries. Don't reformat or remove existing values.
 
 ---
 
