@@ -29,6 +29,7 @@ Then restart Claude Code and run setup:
 | `/kit-pm-skills:ticket <description>` | Drafts and creates a Linear ticket — feature, bug, or spike |
 | `/kit-pm-skills:competitor <topic>` | Researches and produces a competitor analysis — full or quick snapshot |
 | `/kit-pm-skills:shipped <feature>` | Generates an internal Slack post and external developer release note |
+| `/kit-pm-skills:weekly` | Drafts your weekly Lattice check-in from Linear and Granola activity |
 | `/kit-pm-skills:api <request>` | Makes a Kit API request — sets up credentials on first use |
 
 ---
@@ -55,7 +56,7 @@ Then restart Claude Code and run setup:
 | `.claude/agents/lewis.md` | Personalised critical reviewer with your feature context and English preference |
 | `.claude/agents/copywriter.md` | Personalised writing editor with your English preference |
 | `.mcp.json` | Configured MCP servers (Linear always; Granola, kit-docs, and Kit API if selected) |
-| `prds/`, `shipped-notes/`, `.claude/state/` | Workspace directories |
+| `prds/`, `shipped-notes/`, `weekly-updates/`, `.claude/state/` | Workspace directories |
 
 ### MCP authentication
 
@@ -225,6 +226,33 @@ Generates release notes for a shipped feature in two formats: an internal Slack 
 
 ---
 
+## /weekly
+
+Drafts your weekly Lattice check-in from the past 7 days of activity.
+
+### Flow
+
+1. Queries Linear for completed issues, in-progress work, and project updates in your configured team
+2. If Granola is configured, fetches recent meetings to extract discussion themes and match your tone of voice
+3. Asks a few quick questions — biggest wins, next-week priorities, any blockers
+4. Hands off to the **copywriter** to produce the check-in in your natural voice, following the weekly update style guide
+5. Saves to `weekly-updates/YYYY-MM-DD.md` and opens it
+
+### Format
+
+Follows the Lattice check-in format: **What's going well** (wins, outcomes) and **Align on expectations** (1-3 next-week priorities) are always included. Optional sections — challenges, learnings, support asks — only appear if there's genuine content.
+
+The output sounds like you wrote it: outcome-focused, specific, skimmable in 2 minutes.
+
+### Example usage
+
+```
+/weekly
+/weekly focused on extensibility work this week
+```
+
+---
+
 ## Bundled agents
 
 These agents are included in the plugin and available in your workspace after install. Running `/setup` creates personalised versions in `.claude/agents/` that take precedence.
@@ -256,6 +284,7 @@ your-workspace/
 │       └── certs/                 # Self-signed cert for local HTTPS OAuth callback (gitignored)
 ├── prds/                # PRD markdown files
 ├── shipped-notes/       # Release notes output
+└── weekly-updates/      # Weekly Lattice check-in drafts
 └── my-features/         # (Optional) Feature area docs for internal research context
 ```
 
@@ -274,6 +303,7 @@ Style guides and templates are bundled in `references/` for human reading and fo
 | `style-release-notes.md` | `/shipped` | Release notes format for internal Slack and external changelog |
 | `style-ticket.md` | `/ticket` | Feature, bug, and spike ticket templates with acceptance criteria guidance |
 | `style-competitor.md` | `/competitor` | Full analysis and quick snapshot formats with writing principles |
+| `style-weekly-update.md` | `/weekly` | Weekly Lattice check-in structure, voice, and word choice |
 
 ### Other references
 

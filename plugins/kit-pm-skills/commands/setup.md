@@ -359,7 +359,7 @@ If `.claude/.gitignore` doesn't exist, create it with those three lines.
 
 Run:
 ```bash
-mkdir -p .claude/pm-skills/communication-styles
+mkdir -p .claude/pm-skills/communication-styles weekly-updates
 ```
 
 Write `.claude/pm-skills/communication-styles/style-prd.md`:
@@ -639,6 +639,40 @@ Good criteria are testable and describe outcomes, not implementation. Cover the 
 - **Bad:** "Add a blue 'Move to folder' button in the top-right corner" (that's design's job)
 
 If you can't write acceptance criteria, the scope isn't ready — flag this to the user rather than leaving them vague.
+```
+
+Write `.claude/pm-skills/communication-styles/style-weekly-update.md`:
+
+```markdown
+# Weekly Update Style Guide
+
+## Structure
+
+Six sections — only the first two are required:
+
+1. **What's going well** — 3-5 bullets, biggest win first. Outcomes, not activities.
+2. **Align on expectations** — 1-3 priorities for next week. Be specific about what "done" looks like.
+
+Optional (only include if genuine content exists):
+3. **Challenges or roadblocks** — Real blockers only. Be specific about what help looks like.
+4. **What I learned** — Genuine insight that changed your thinking. Skip if it was a normal week.
+5. **How you can support me** — Specific, actionable asks.
+6. **Anything else** — Rarely needed.
+
+**Length:** Skimmable in 2 minutes. Most weeks: 5-8 bullets total.
+
+## Voice
+
+- Outcomes, not activities: "Shipped X — unblocks Y" not "Completed X"
+- Specific: "Finalise automation folders PRD by Thursday" not "Continue working on PRD"
+- Honest and direct. Not performative. Confident about wins.
+- Should sound like you dashed it off — clear, not laboured.
+
+## Word Choice
+
+**Lead with:** shipped, aligned, decided, unblocked, finalised — plus specific nouns (feature names, team names, dates) and numbers where they matter.
+
+**Avoid:** Activity lists, vague goals, filler in optional sections, burying the lead, corporate jargon.
 ```
 
 Write `.claude/pm-skills/communication-styles/style-competitor.md`:
