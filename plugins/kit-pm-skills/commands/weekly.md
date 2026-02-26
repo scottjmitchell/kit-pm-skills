@@ -14,7 +14,7 @@ Generate a weekly Lattice check-in from the past 7 days of activity.
 2. Read `.claude/pm-skills/config.md` if it exists. Extract and store:
    - `ticket_team` — Linear team to query for weekly activity (fall back to `prd_team`, then ask)
    - `feature_areas` — PM's owned features (used to focus research)
-   - `granola` — `yes` or `no` (skip tone agent if `no`)
+   - `granola` — `yes` or `no` (skip Granola agent if `no`)
    - `english` — British or American (default: British)
 3. Read `.claude/pm-skills/communication-styles/style-weekly-update.md` for the output format and voice guidelines. If this file doesn't exist, run `/setup` first.
 
@@ -26,7 +26,7 @@ If any of the following are missing, collect them before proceeding. Batch missi
 |---|---|---|
 | `ticket_team` (no fallback) | "Which Linear team should `/weekly` query for your activity?" | Fetched teams + "Other — I'll type mine" |
 | `feature_areas` | "What feature areas do you own?" | "Automations" / "Extensibility" / "Email Sending" / "Other — I'll describe mine" |
-| `granola` | "Do you use Granola? (Used to match your tone of voice)" | "Yes" / "No" |
+| `granola` | "Do you use Granola? (Used as a content source for meetings and decisions this week, plus tone matching)" | "Yes" / "No" |
 
 After collecting, update `.claude/pm-skills/config.md`: add missing keys, don't reformat existing values.
 
@@ -53,18 +53,28 @@ For projects, capture: name, health status, and any recent milestone notes.
 Write findings to .claude/state/weekly-linear.md. Format as three sections: Completed, In Progress, Project Status.
 ```
 
-**Agent 2 — Granola meetings & tone of voice** (`subagent_type: "general-purpose"`) — *only spawn if `granola: yes`*
+**Agent 2 — Granola meetings** (`subagent_type: "general-purpose"`) — *only spawn if `granola: yes`*
 
 ```
-Fetch this week's meetings from Granola to extract discussion themes and tone of voice.
+Fetch this week's meetings from Granola. Granola is the PRIMARY content source for what actually happened in meetings — use it to surface wins, decisions, and context that may not be captured in Linear.
 
 1. Use list_meetings to find meetings from the last 7 days
-2. Use get_meeting_transcript for the 3 most relevant meetings
-3. From the content, extract two things:
-   a) KEY THEMES — topics that came up repeatedly, decisions made, blockers discussed, wins mentioned
-   b) TONE OF VOICE — 3-5 representative excerpts that capture how the PM naturally communicates in meetings (vocabulary, sentence structure, level of formality, how they frame impact)
+2. Use get_meeting_transcript for the 3–5 most relevant meetings
+3. From the transcripts, extract three things:
 
-Write findings to .claude/state/weekly-granola.md with two clear sections: "Meeting Themes" and "Tone Samples".
+   a) ACCOMPLISHMENTS & DECISIONS — things that happened and matter for a weekly update:
+      - Decisions made (e.g. "Decided to ship VA folders before search")
+      - Stakeholder alignment achieved (e.g. "Aligned with engineering on API rate limiting approach")
+      - Research completed (e.g. "Ran 3 user interviews on sequence scheduling — key finding: timezone handling is the #1 pain point")
+      - Work reviewed or approved (e.g. "PRD for automation folders reviewed with Katie, green-lit for Q2")
+      - Cross-team unblocking (e.g. "Unblocked app partner Zapier on webhook schema question")
+      Be specific — include names, features, outcomes.
+
+   b) CONTEXT FOR IN-PROGRESS WORK — what's actively being discussed, debated, or in flight that didn't complete yet
+
+   c) TONE SAMPLES — 3–5 short excerpts of how the PM naturally speaks in meetings (vocabulary, sentence rhythm, how they frame impact or progress). These are used to match voice in the written update.
+
+Write findings to .claude/state/weekly-granola.md with three clear sections: "Accomplishments & Decisions", "In-Progress Context", and "Tone Samples".
 If Granola MCP tools are unavailable, write "Granola unavailable" to the file and continue.
 ```
 
@@ -90,14 +100,14 @@ Keep these confirmation-style where possible — reference specific items from t
 Spawn a **copywriter** Task agent (`subagent_type: "copywriter"`) with all gathered context:
 
 ```
-Write a weekly Lattice check-in for a PM. I'm providing their Linear activity, meeting themes, tone samples, and their own clarifications.
+Write a weekly Lattice check-in for a PM. I'm providing two content sources — Linear and Granola — plus tone samples and the PM's own clarifications.
 
 First, read the style guide at `.claude/pm-skills/communication-styles/style-weekly-update.md` — it defines the structure, section rules, and voice.
 
 ## Linear Activity
 [Insert contents of .claude/state/weekly-linear.md]
 
-## Meeting Themes & Tone
+## Granola Meetings — Accomplishments, Decisions & Tone
 [Insert contents of .claude/state/weekly-granola.md]
 
 ## PM's Clarifications
@@ -105,7 +115,11 @@ First, read the style guide at `.claude/pm-skills/communication-styles/style-wee
 
 ---
 
-Use the tone samples closely — vocabulary, energy, how outcomes are framed. This should sound like the PM dashed it off themselves, not like an AI summary. Omit optional sections (challenges, learnings, support asks) unless the PM provided genuine content for them.
+Both Linear AND Granola are content sources. Linear captures shipped tickets and in-progress work; Granola captures decisions made, stakeholder alignment, research completed, and cross-team unblocking — things that are real wins but may not have Linear tickets. Treat both equally when deciding what goes in "What's going well" and "Align on expectations".
+
+Use the Granola tone samples to match voice — vocabulary, energy, how outcomes are framed. This should sound like the PM dashed it off themselves, not like an AI summary.
+
+Omit optional sections (challenges, learnings, support asks) unless the PM provided genuine content for them.
 
 Return the complete check-in text, ready to paste into Lattice.
 ```
