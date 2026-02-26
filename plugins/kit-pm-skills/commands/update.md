@@ -67,45 +67,41 @@ Re-read the local plugin version after pulling and store as `local_version`.
 
 Read `.claude/pm-skills/config.md` in full.
 
-Check which of the following expected config fields are **absent**. A field is "set" if its key line exists in the config — even if the value is blank (e.g. `prd_label:` with no value counts as set). Only ask questions for fields that are truly absent.
+### 4a. Identify missing fields
 
-### Config field checklist
+Go through each field below and mark it as **present** or **missing**. A field is present if its key line exists anywhere in the config file — even with a blank value (e.g. `prd_label:` with nothing after it counts as present). Do not ask about present fields under any circumstances.
 
-**`## English` section — `preference` field**
-- Set if the line `preference:` exists under `## English`
-- If missing → ask: "Which English spelling do you prefer?"
-  - `British (the correct spelling)`
-  - `American English`
+| Field | Present if config contains… |
+|---|---|
+| `english` | `preference:` line under `## English` |
+| `editor` | `preference:` line under `## Editor` |
+| `prd_team` | `prd_team:` line under `## Linear` |
+| `prd_label` | `prd_label:` line under `## Linear` (blank value is fine) |
+| `prd_create_as` | `prd_create_as:` line under `## Linear` |
+| `ticket_team` | `ticket_team:` line under `## Linear` |
+| `feature_areas` | `## Feature Areas` section with non-empty content below it |
+| `granola` | `granola:` line under `## Integrations` |
+| `kit_docs` | `kit_docs:` line under `## Integrations` |
 
-**`## Editor` section — `preference` field**
-- Set if the line `preference:` exists under `## Editor`
-- If missing → ask: "Which text editor or IDE do you use?"
-  - `VS Code — opens files with 'code'`
-  - `Cursor — opens files with 'cursor'`
-  - `Zed — opens files with 'zed'`
-  - `System default — uses 'open' (macOS) or 'xdg-open' (Linux)`
+**If all fields are present:** tell the user their config is complete and skip straight to Step 5. Do not ask any questions.
 
-**`## Linear` section fields**
-- `prd_team` — if missing → fetch Linear teams (call `mcp__linear-server__list_teams`), ask "Which Linear team should new PRDs be created in?" with fetched teams + "Other — I'll type mine"
-- `prd_label` — if the `prd_label:` line is absent entirely → ask "Should a label be applied to new PRDs?" (Yes/No). If Yes → fetch Squad labels (`mcp__linear-server__list_issue_labels`, filter by group "Squad"), ask which label. If No → write `prd_label:` (blank)
-- `prd_create_as` — if missing → ask "When a PRD is approved, should it be created as a Linear issue or project?" (Issue / Project)
-- `ticket_team` — if missing → ask "Where should /ticket create issues by default?" using fetched Linear teams, with "Same as PRDs — [prd_team]" as first option
+### 4b. Ask only about missing fields
 
-**`## Feature Areas` section**
-- Set if the section exists and has content below the heading
-- If missing or empty → ask "What feature areas do you own?" (multiSelect):
-  - `Automations (visual automations, rules, webhooks, RSS)`
-  - `Extensibility (app store, APIs, developer documentation)`
-  - `Email Sending (pipeline, deliverability, sequence scheduling)`
-  - `Growth, monetisation, or subscriber acquisition`
+If one or more fields are missing, fetch any Linear data needed first (only if `prd_team` or `ticket_team` or `prd_label` are missing):
+- `prd_team` or `ticket_team` missing → call `mcp__linear-server__list_teams`
+- `prd_label` missing → call `mcp__linear-server__list_issue_labels`, filter to group `Squad`
 
-**`## Integrations` section fields**
-- `granola` — if missing → ask "Do you use Granola for meetings?" (Yes / No)
-- `kit_docs` — if missing → ask "Do you want kit-docs search for /api and release notes?" (Yes / No)
+Then ask only about the missing fields, grouped into as few `AskUserQuestion` calls as possible (up to 4 questions per call):
 
-Group questions into as few `AskUserQuestion` calls as possible (up to 4 questions per call). Don't ask about fields that are already set.
-
-**If all fields are already set:** Tell the user their config is complete and skip to Step 5.
+- `english` → "Which English spelling do you prefer?" — `British (the correct spelling)` / `American English`
+- `editor` → "Which text editor or IDE do you use?" — `VS Code` / `Cursor` / `Zed` / `System default`
+- `prd_team` → "Which Linear team should new PRDs be created in?" — fetched teams + `Other — I'll type mine`
+- `prd_label` → "Should a label be applied to new PRDs?" (Yes/No). If Yes → ask which Squad label using fetched labels. If No → write `prd_label:` (blank)
+- `prd_create_as` → "When a PRD is approved, should it be created as a Linear issue or project?" — `Issue` / `Project`
+- `ticket_team` → "Where should /ticket create issues by default?" — `Same as PRDs — [prd_team]` + other fetched teams + `Other`
+- `feature_areas` → "What feature areas do you own?" (multiSelect) — `Automations` / `Extensibility` / `Email Sending` / `Growth, monetisation, or subscriber acquisition`
+- `granola` → "Do you use Granola for meetings?" — `Yes` / `No`
+- `kit_docs` → "Do you want kit-docs search for /api and release notes?" — `Yes` / `No`
 
 ---
 
