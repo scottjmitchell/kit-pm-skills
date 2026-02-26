@@ -14,11 +14,14 @@ Generate a weekly Lattice check-in from the past 7 days of activity.
 2. Read `.claude/pm-skills/config.md` if it exists. Extract and store:
    - `ticket_team` — Linear team to query for weekly activity (fall back to `prd_team`, then ask)
    - `feature_areas` — PM's owned features (used to focus research)
-   - `granola` — `yes` or `no` (skip Granola agent if `no`)
+   - `granola` — `yes` or `no` (skip Granola content agent if `no`)
    - `slack` — `yes` or `no` (enables Slack activity agent, default `no`)
    - `notion_todos_db` — Notion todos data source ID (optional — enables Notion agent if present, e.g. `collection://xxxx`)
    - `english` — British or American (default: British)
-3. Read `.claude/pm-skills/communication-styles/style-weekly-update.md` for the output format and voice guidelines. If this file doesn't exist, run `/setup` first.
+3. **Load tone of voice**: Check if `.claude/pm-skills/tone-of-voice.md` exists.
+   - If it exists: read it and store as the tone reference for Step 3
+   - If it doesn't exist: note "No tone reference — run /tone to build one. Using standard voice."
+4. Read `.claude/pm-skills/communication-styles/style-weekly-update.md` for the output format and voice guidelines. If this file doesn't exist, run `/setup` first.
 
 ### Config check
 
@@ -65,7 +68,7 @@ Fetch this week's meetings from Granola. Granola is the PRIMARY content source f
 
 1. Use list_meetings to find meetings from the last 7 days
 2. Use get_meeting_transcript for the 3–5 most relevant meetings
-3. From the transcripts, extract three things:
+3. From the transcripts, extract two things:
 
    a) ACCOMPLISHMENTS & DECISIONS — things that happened and matter for a weekly update:
       - Decisions made (e.g. "Decided to ship VA folders before search")
@@ -77,9 +80,7 @@ Fetch this week's meetings from Granola. Granola is the PRIMARY content source f
 
    b) CONTEXT FOR IN-PROGRESS WORK — what's actively being discussed, debated, or in flight that didn't complete yet
 
-   c) TONE SAMPLES — 3–5 short excerpts of how the PM naturally speaks in meetings (vocabulary, sentence rhythm, how they frame impact or progress). These are used to match voice in the written update.
-
-Write findings to .claude/state/weekly-granola.md with three clear sections: "Accomplishments & Decisions", "In-Progress Context", and "Tone Samples".
+Write findings to .claude/state/weekly-granola.md with two clear sections: "Accomplishments & Decisions" and "In-Progress Context".
 If Granola MCP tools are unavailable, write "Granola unavailable" to the file and continue.
 ```
 
@@ -143,14 +144,14 @@ Keep these confirmation-style where possible — reference specific items from t
 Spawn a **copywriter** Task agent (`subagent_type: "copywriter"`) with all gathered context:
 
 ```
-Write a weekly Lattice check-in for a PM. I'm providing up to four content sources — Linear, Granola, Slack, and Notion todos — plus the PM's own clarifications.
+Write a weekly Lattice check-in for a PM. I'm providing up to four content sources — Linear, Granola, Slack, and Notion todos — plus a tone of voice reference and the PM's own clarifications.
 
 First, read the style guide at `.claude/pm-skills/communication-styles/style-weekly-update.md` — it defines the structure, section rules, and voice.
 
 ## Linear Activity
 [Insert contents of .claude/state/weekly-linear.md]
 
-## Granola Meetings — Accomplishments, Decisions & Tone
+## Granola Meetings — Accomplishments & Decisions
 [Insert contents of .claude/state/weekly-granola.md]
 
 ## Slack Activity
@@ -159,6 +160,9 @@ First, read the style guide at `.claude/pm-skills/communication-styles/style-wee
 ## Notion Todos
 [Insert contents of .claude/state/weekly-notion.md — omit section if file doesn't exist]
 
+## Tone of Voice Reference
+[Insert contents of .claude/pm-skills/tone-of-voice.md if it exists, otherwise: "No tone reference — use professional, outcome-focused voice per the style guide."]
+
 ## PM's Clarifications
 [Insert answers from Step 2]
 
@@ -166,7 +170,7 @@ First, read the style guide at `.claude/pm-skills/communication-styles/style-wee
 
 All provided sources are equally valid content. Linear captures shipped tickets and in-progress work; Granola captures decisions, stakeholder alignment, and cross-team wins that may not have Linear tickets; Slack captures discussions and decisions not recorded elsewhere; Notion todos capture personal commitments and admin work. Draw from all of them when building "What's going well" and "Align on expectations".
 
-Use the Granola tone samples to match voice — vocabulary, energy, how outcomes are framed. This should sound like the PM dashed it off themselves, not like an AI summary.
+Use the tone of voice reference to match voice — vocabulary, energy, how outcomes are framed. This should sound like the PM dashed it off themselves, not like an AI summary.
 
 Omit optional sections (challenges, learnings, support asks) unless the PM provided genuine content for them.
 
@@ -190,3 +194,36 @@ Delete temporary files that exist:
 - `.claude/state/weekly-granola.md`
 - `.claude/state/weekly-slack.md`
 - `.claude/state/weekly-notion.md` (if created)
+
+## Step 6: Background tone refresh
+
+If `granola: yes` is in config, spawn a background Task agent to keep the tone reference fresh for next time:
+
+Spawn a `general-purpose` Task agent with `run_in_background: true`:
+
+```
+Refresh the tone of voice reference at .claude/pm-skills/tone-of-voice.md from recent Granola meetings.
+
+1. Use list_meetings to find the 10 most recent meetings
+2. Use get_meeting_transcript for the 5 most content-rich meetings (skip short standups)
+3. Extract:
+   - Voice Profile: 3–5 bullet summary of communication style
+   - Representative Samples: 8–10 excerpts (1–3 sentences each) capturing the natural speaking voice
+   - Key Patterns: vocabulary preferences, formality level, sentence rhythm
+4. Write to .claude/pm-skills/tone-of-voice.md:
+
+# Tone of Voice Reference
+
+> Last updated: [today's date]
+
+## Voice Profile
+[bullets]
+
+## Representative Samples
+[excerpts]
+
+## Key Patterns
+[bullets]
+
+If Granola MCP is unavailable, exit silently without modifying the file.
+```

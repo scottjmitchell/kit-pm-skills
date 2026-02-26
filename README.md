@@ -29,6 +29,7 @@ Then restart Claude Code and run setup:
 | `/kit-pm-skills:ticket <description>` | Drafts and creates a Linear ticket — feature, bug, or spike |
 | `/kit-pm-skills:competitor <topic>` | Researches and produces a competitor analysis — full or quick snapshot |
 | `/kit-pm-skills:shipped <feature>` | Generates an internal Slack post and external developer release note |
+| `/kit-pm-skills:tone` | Builds or refreshes your persistent tone of voice reference from Granola meetings |
 | `/kit-pm-skills:weekly` | Drafts your weekly Lattice check-in from Linear, Granola, Slack, and Notion activity |
 | `/kit-pm-skills:api <request>` | Makes a Kit API request — sets up credentials on first use |
 
@@ -211,13 +212,14 @@ Generates release notes for a shipped feature in two formats: an internal Slack 
 
 ### Flow
 
-1. Runs three parallel data-gathering agents:
+1. Reads your tone of voice from `.claude/pm-skills/tone-of-voice.md` (built by `/tone`) — instant, no Granola fetch needed
+2. Runs two parallel data-gathering agents:
    - **Linear context** — finds the shipped project or issue, collects all assignees to credit
    - **PRDs & docs** — searches `prds/`, `my-features/`, and kit-docs (if configured) for context
-   - **Tone of voice** — fetches Granola meeting notes to match your natural writing style (skipped if Granola is not configured)
-2. Checks for any missing information and asks if needed
-3. Hands off to **copywriter** to produce both formats
-4. Saves to `shipped-notes/YYYY-MM-DD-feature-name.md` and opens it
+3. Checks for any missing information and asks if needed
+4. Hands off to **copywriter** to produce both formats
+5. Saves to `shipped-notes/YYYY-MM-DD-feature-name.md` and opens it
+6. Spawns a **background tone refresh** (if Granola is configured) so the tone file stays current for next time
 
 ### Formats
 
@@ -227,20 +229,45 @@ Generates release notes for a shipped feature in two formats: an internal Slack 
 
 ---
 
+## /tone
+
+Builds or refreshes the persistent tone of voice reference used by `/shipped` and `/weekly`.
+
+### Why it exists
+
+Rather than fetching Granola on every run of `/shipped` and `/weekly` (slow), `/tone` extracts your voice once and caches it at `.claude/pm-skills/tone-of-voice.md`. The writing skills read from this file instantly, and a background task refreshes it after each run so it stays current.
+
+### Flow
+
+1. Fetches the 10 most recent Granola meetings and analyses the 6 most content-rich transcripts
+2. Extracts three things: a voice profile (3–5 bullets), 8–10 representative samples, and key patterns (vocabulary, rhythm, formality)
+3. Writes or overwrites `.claude/pm-skills/tone-of-voice.md` with a `Last updated` timestamp
+4. Confirms how many samples were captured
+
+### When to run
+
+- **Once after setup** — to seed the file before using `/shipped` or `/weekly`
+- **Any time output doesn't sound like you** — re-run to refresh with more recent meetings
+- Ongoing refresh happens automatically in the background after each `/shipped` and `/weekly` run
+
+---
+
 ## /weekly
 
 Drafts your weekly Lattice check-in from the past 7 days of activity.
 
 ### Flow
 
-1. Runs up to four parallel research agents depending on your configured integrations:
+1. Reads your tone of voice from `.claude/pm-skills/tone-of-voice.md` (built by `/tone`) — instant, no Granola fetch needed for voice matching
+2. Runs up to four parallel research agents depending on your configured integrations:
    - **Linear** — completed issues, in-progress work, project updates (always active)
-   - **Granola** — meeting wins, decisions, and tone of voice samples (if `granola: yes`)
+   - **Granola** — meeting wins and decisions (content only, no tone fetch — if `granola: yes`)
    - **Slack** — cross-team discussions and decisions not captured in Linear (if `slack: yes`)
    - **Notion todos** — completed and in-progress personal tasks (if `notion_todos_db` is set in config)
-2. Asks a few quick questions — biggest wins, next-week priorities, any blockers
-3. Hands off to the **copywriter** to produce the check-in in your natural voice, drawing from all active sources
-4. Saves to `weekly-updates/YYYY-MM-DD.md` and opens it
+3. Asks a few quick questions — biggest wins, next-week priorities, any blockers
+4. Hands off to the **copywriter** to produce the check-in in your natural voice, drawing from all active sources
+5. Saves to `weekly-updates/YYYY-MM-DD.md` and opens it
+6. Spawns a **background tone refresh** (if Granola is configured) so the tone file stays current for next time
 
 ### Configuration
 
