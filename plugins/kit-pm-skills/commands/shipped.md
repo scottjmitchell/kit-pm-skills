@@ -1,5 +1,5 @@
 ---
-description: Generate internal Slack post and external developer release notes for a shipped feature
+description: Generate release notes when a feature ships — writes the internal #all-shipped Slack post (with tone matched to the PM's natural voice) and an optional developer changelog entry. Use this any time a feature lands, you want to announce what shipped, write up a release, or create a developer-facing changelog entry.
 argument-hint: <feature name or description>
 allowed-tools: [Bash, Read, Write, Glob, Grep, Task, AskUserQuestion]
 ---
@@ -15,15 +15,33 @@ Before doing anything else:
 1. Run: `mkdir -p shipped-notes .claude/state`
 2. Read `.claude/pm-skills/config.md` if it exists. Extract and store:
    - `feature_areas` — used to focus PRD and docs search
-   - `granola` — `yes` or `no` (if `no`, skip the tone of voice agent entirely)
    - `kit_docs` — `yes` or `no` (if `no`, skip the kit-docs MCP search in Agent 2)
    - `editor` — preferred editor (`vscode`, `cursor`, `zed`, or `system`; default: `system`)
 
-If the config file doesn't exist, proceed with all steps enabled.
+3. **Load tone of voice**: Check if `.claude/pm-skills/tone-of-voice.md` exists.
+   - If it exists: read it and write its contents to `.claude/state/shipped-tone.md`
+   - If it doesn't exist: write the following to `.claude/state/shipped-tone.md`:
+     ```
+     No tone reference found. Use a professional, accessible, team-focused voice per the style guide.
+     Tip: run /tone to build a personalised tone reference from Granola meetings.
+     ```
 
-If `shipped-notes/MEMORY.md` exists, read it for context on past conventions before starting.
+4. If `shipped-notes/MEMORY.md` exists, read it for context on past conventions before starting.
 
-4. Use `AskUserQuestion` to ask:
+Read `.claude/pm-skills/communication-styles/style-release-notes.md` for format, Slack mrkdwn rules, voice guidelines, and the output file structure. If this file doesn't exist, run `/setup` first.
+
+### Config check
+
+If any of the following are missing or empty, ask for them in a single `AskUserQuestion` call before proceeding. Skip entirely if all are present.
+
+| Key | Question to ask | Options |
+|---|---|---|
+| `feature_areas` | "What feature areas do you own? (Used to focus docs and PRD search)" | "Automations" / "Extensibility" / "Email Sending" / "Other — I'll describe mine" |
+| `kit_docs` | "Should release notes search Kit developer docs for API/plugin context?" | "Yes — I have kit-docs configured" / "No — skip" |
+
+After collecting answers, update `.claude/pm-skills/config.md`: add missing keys using the same format as existing entries. Don't reformat or remove existing values.
+
+5. Use `AskUserQuestion` to ask:
    > Does this feature need a developer changelog entry?
    - **Yes — Slack post + developer changelog** (API changes, new endpoints, App Store/Plugin/Webhook updates, or anything developer-facing)
    - **No — Slack post only**
@@ -32,40 +50,11 @@ If `shipped-notes/MEMORY.md` exists, read it for context on past conventions bef
 
 ---
 
-## Release Notes Style Guide
-
-### Internal Slack Post (#all-shipped)
-
-**Structure:**
-- Emoji + bold title (e.g. `*Custom Field Webhooks*`)
-- `*What shipped:*` — one sentence on the feature/capability
-- `*Problem solved:*` — why it matters; user pain or business opportunity
-- `*How it works:*` — 2–4 bullets, no jargon; translate technical terms into user benefits
-- `*Expected impact:*` — user/business outcome
-- `*Links:*` — Mixpanel dashboard, Linear project, docs
-
-**Slack mrkdwn format (not markdown):**
-- `*bold*` not `**bold**`
-- `_italic_` not `*italic*`
-- `•` bullets, not `-` dashes
-- `` `code` `` for inline code
-- `<url|link text>` for links
-
-**Voice:** Celebratory but grounded. Accessible to non-technical readers. Active voice, present tense. Bold key terms.
-
-### External Developer Release Note *(only if `needs_dev_changelog: yes`)*
-
-**Structure:** No headings. Tight paragraph or 3–5 bullets. Lead with what's new → what it enables → how to use it → link to docs.
-
-**Voice:** Technically precise. Benefit-focused, no marketing fluff. Assume developer fluency. Include endpoint paths, HTTP methods, OAuth requirements, parameter names where relevant.
-
----
-
 ## Instructions
 
 ### Step 1: Launch parallel data-gathering agents
 
-Spawn **three** `general-purpose` Task agents **in a single message**. Pass each agent the feature input (`$ARGUMENTS`).
+Spawn **two** `general-purpose` Task agents **in a single message**. Pass each agent the feature input (`$ARGUMENTS`).
 
 **Agent 1 — Linear Feature Context**
 
@@ -97,31 +86,9 @@ Write findings to .claude/state/shipped-docs.md
 Include: relevant PRD excerpts (problem statement, goals, key features), developer doc links, API/plugin details.
 ```
 
-**Agent 3 — Tone of Voice** *(only run if `granola: yes` in config, or config is missing)*
-
-```
-Fetch recent meeting notes from Granola to extract the author's natural communication style and tone of voice.
-
-1. Use the Granola MCP: list_meetings to find 5 recent meetings
-2. Use get_meeting_transcript for 2–3 of them
-3. Analyse natural communication patterns:
-   - Vocabulary and phrasing preferences
-   - How features and impact/value are described
-   - Level of formality vs. casual energy
-   - Sentence structure (short/punchy vs. detailed)
-   - Level of enthusiasm and how it's expressed
-
-If Granola MCP tools are unavailable, write a note to .claude/state/shipped-tone.md saying "Granola unavailable — use standard voice from style guide."
-
-Write findings to .claude/state/shipped-tone.md
-Include: a summary of tone patterns AND 3–5 representative excerpts that capture their voice.
-```
-
-If `granola: no` in config, skip Agent 3 entirely and write `.claude/state/shipped-tone.md` with: "Granola not configured — using standard style guide voice."
-
 ### Step 2: Assess completeness
 
-After all three agents return, read:
+After both agents return, read:
 - `.claude/state/shipped-linear.md`
 - `.claude/state/shipped-docs.md`
 - `.claude/state/shipped-tone.md`
@@ -141,6 +108,8 @@ Spawn a **copywriter** Task agent (`subagent_type: "copywriter"`) with all gathe
 ```
 Write shipped release notes for a feature. I'm providing feature context, internal documentation, tone of voice, and format requirements.
 
+First, read the style guide at `.claude/pm-skills/communication-styles/style-release-notes.md` — it defines format, Slack mrkdwn rules, voice guidelines, and the exact output file structure to use.
+
 ## Feature Context (from Linear)
 [Insert contents of .claude/state/shipped-linear.md]
 
@@ -152,50 +121,10 @@ Write shipped release notes for a feature. I'm providing feature context, intern
 
 ---
 
-## Style Guide
-
-### Internal Slack Post
-Structure:
-- Emoji + bold title
-- *What shipped:* one sentence
-- *Problem solved:* user pain or business opportunity
-- *How it works:* 2–4 bullets, jargon-free
-- *Expected impact:* user/business outcome
-- *Links:* dashboards, Linear project, docs
-
-Slack mrkdwn (not markdown): *bold*, _italic_, • bullets, `code`, <url|link text> for links
-Voice: Celebratory but grounded. Accessible to non-technical readers. Active voice, present tense.
-Wrap the entire Slack post in a markdown code fence so it's easy to copy.
-
-### External Developer Release Note *(only include if needs_dev_changelog: yes)*
-Structure: No headings. Tight paragraph or 3–5 bullets. Lead with what's new → what it enables → how to use it → docs link.
-Voice: Technically precise. Benefit-focused, no marketing fluff. Include endpoint paths, HTTP methods, OAuth requirements where relevant.
-Length: Extremely concise — changelog entry, not blog post.
-
----
-
-## Output Structure
-
-# [Feature Name] — Shipped Release Notes
-
-> Generated: [today's date] | Project: [Linear project link]
-> Builders: [all unique assignees from completed issues]
-
----
-
-## Internal Slack Post (#all-shipped)
-
-[Slack mrkdwn content in a code fence]
-
----
-
-## External Developer Release Note *(omit entire section if needs_dev_changelog: no)*
-
-[Developer-facing content]
-
----
-
-Match the tone of voice samples closely — vocabulary, energy, how value and impact are framed. If no tone samples were available, use a professional, accessible, team-focused voice. The notes should sound human, not like a generic PM template.
+Additional notes:
+- Wrap the Slack post in a markdown code fence so it's easy to copy.
+- Omit the External Developer Release Note section entirely if needs_dev_changelog: no.
+- Match the tone of voice samples closely — vocabulary, energy, how value and impact are framed. If no tone samples were available, use a professional, accessible, team-focused voice. The notes should sound human, not like a generic PM template.
 
 Write the complete file content and return it.
 ```
@@ -258,3 +187,36 @@ Delete the temporary files:
 - `.claude/state/shipped-tone.md`
 
 If you learned anything new about the feature area, team conventions, or product that would help future release notes, append it to `shipped-notes/MEMORY.md`.
+
+### Step 7: Background tone refresh
+
+If `granola` is `yes` in config, spawn a background Task agent to keep the tone reference fresh for next time:
+
+Spawn a `general-purpose` Task agent with `run_in_background: true`:
+
+```
+Refresh the tone of voice reference at .claude/pm-skills/tone-of-voice.md from recent Granola meetings.
+
+1. Use list_meetings to find the 10 most recent meetings
+2. Use get_meeting_transcript for the 5 most content-rich meetings (skip short standups)
+3. Extract:
+   - Voice Profile: 3–5 bullet summary of communication style
+   - Representative Samples: 8–10 excerpts (1–3 sentences each) capturing the natural speaking voice
+   - Key Patterns: vocabulary preferences, formality level, sentence rhythm
+4. Write to .claude/pm-skills/tone-of-voice.md:
+
+# Tone of Voice Reference
+
+> Last updated: [today's date]
+
+## Voice Profile
+[bullets]
+
+## Representative Samples
+[excerpts]
+
+## Key Patterns
+[bullets]
+
+If Granola MCP is unavailable, exit silently without modifying the file.
+```
