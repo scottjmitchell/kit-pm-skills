@@ -382,6 +382,15 @@ Run:
 mkdir -p .claude/pm-skills/communication-styles weekly-updates
 ```
 
+**Install Pricing & Packaging reference:**
+
+Read the plugin's bundled reference:
+```bash
+cat "$HOME/.claude/plugins/marketplaces/kit-pm-skills/plugins/kit-pm-skills/references/pricing-packaging.md"
+```
+
+Write the output to `.claude/pm-skills/pricing-packaging.md` — but replace the `last_synced:` line in the frontmatter with today's date (YYYY-MM-DD format), so the freshness check in `/prd` works correctly from day one.
+
 Write `.claude/pm-skills/communication-styles/style-prd.md`:
 
 ```markdown

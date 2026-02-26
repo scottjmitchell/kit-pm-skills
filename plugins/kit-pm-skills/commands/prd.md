@@ -20,7 +20,35 @@ Before doing anything else:
    - `feature_areas` — PM's owned features (use to focus research)
    - `english` — British or American (default: British)
    - `editor` — preferred editor (`vscode`, `cursor`, `zed`, or `system`; default: `system`)
-3. Read `.claude/pm-skills/pricing-packaging.md` if it exists — contains plan principles used to fill the Pricing & Packaging section
+3. **Read and sync `.claude/pm-skills/pricing-packaging.md`**:
+   - If the file doesn't exist, note it's missing (Pricing & Packaging section will use defaults only).
+   - If it exists, read it and extract `last_synced` from the YAML frontmatter (the `last_synced:` line between the `---` delimiters at the top).
+   - If `last_synced` is absent **or** more than 7 days before today, sync from Notion now before proceeding:
+
+     Spawn a `general-purpose` Task agent (`model: "haiku"`) and **wait for it to complete**:
+
+     ```
+     Sync the Kit Pricing & Packaging Philosophy from Notion and update the local reference file.
+
+     1. Load the Notion fetch tool using ToolSearch (query: "notion-fetch").
+     2. Fetch Notion page with ID: 27a03e1c401f809ca4cfe383186ed030
+     3. Convert the page content into structured markdown preserving these sections:
+        - Background Questions (6-row table)
+        - Quick Assessment (2×2 table)
+        - Plan Principles (Free / Creator / Creator Pro subsections with bullet lists)
+        - Competitor Packaging Notes
+     4. Write to .claude/pm-skills/pricing-packaging.md with this frontmatter at the top:
+        ---
+        notion_page_id: 27a03e1c401f809ca4cfe383186ed030
+        last_synced: [today's date as YYYY-MM-DD]
+        ---
+     5. If the Notion fetch fails or returns no usable content, do NOT overwrite the existing file.
+        Instead write a single line to .claude/state/pricing-sync-error.md describing the error.
+     ```
+
+   - After the agent returns: check if `.claude/state/pricing-sync-error.md` exists.
+     - If yes: read it, tell the user "⚠️ Couldn't refresh Pricing & Packaging from Notion — using cached version", delete the error file, and continue with the cached file content.
+     - If no: tell the user "✓ Pricing & Packaging reference refreshed from Notion." and re-read the updated file.
 
 ### Config check
 

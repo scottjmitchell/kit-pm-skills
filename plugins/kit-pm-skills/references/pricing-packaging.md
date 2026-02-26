@@ -1,3 +1,8 @@
+---
+notion_page_id: 27a03e1c401f809ca4cfe383186ed030
+last_synced: 2026-02-26
+---
+
 # Pricing & Packaging Philosophy
 
 Reference guide for the **Pricing & Packaging** section in PRDs. Use this when assessing which plan tier(s) a feature should sit on.

@@ -247,7 +247,7 @@ Pass a Linear ticket ID (e.g. `/prd ECO-123`):
 
 PRDs follow the bundled style guide (`references/style-prd.md`): problem-first, British or American English per your preference, specific measurable goals, clear MVP scope, active voice.
 
-Every PRD includes a **Pricing & Packaging** section — either a full assessment (background questions, 2×2 quadrant, plan recommendation with rationale, competitor packaging table) or an abridged version (one-line recommendation + brief rationale), depending on the depth you select at the start. Plan principles are drawn from `references/pricing-packaging.md`.
+Every PRD includes a **Pricing & Packaging** section — either a full assessment (background questions, 2×2 quadrant, plan recommendation with rationale, competitor packaging table) or an abridged version (one-line recommendation + brief rationale), depending on the depth you select at the start. Plan principles are drawn from `.claude/pm-skills/pricing-packaging.md`, which is synced automatically from the [Notion source of truth](https://www.notion.so/kitinc/Pricing-Packaging-Philosophy-27a03e1c401f809ca4cfe383186ed030) if it's more than 7 days old when you run `/prd`.
 
 The **Launch Checklist** includes a DMF naming item that is auto-filled during drafting: recommended **Yes** for net new creator-facing features or significant overhauls, **No** for iterations.
 

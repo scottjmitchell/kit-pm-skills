@@ -109,6 +109,18 @@ Group questions into as few `AskUserQuestion` calls as possible (up to 4 questio
 
 ---
 
+## Step 4b: Refresh pricing-packaging.md (only if a git pull was performed in Step 3)
+
+If the user confirmed and a pull was performed, refresh the local pricing-packaging reference from the updated plugin:
+
+```bash
+cat "$HOME/.claude/plugins/marketplaces/kit-pm-skills/plugins/kit-pm-skills/references/pricing-packaging.md"
+```
+
+Write the output to `.claude/pm-skills/pricing-packaging.md`, replacing the `last_synced:` line in the frontmatter with today's date (YYYY-MM-DD). This keeps the local copy in sync with any structural changes shipped in the plugin update.
+
+---
+
 ## Step 5: Update config
 
 For each new answer, add the field to config using `Edit`. Add new sections if the section heading doesn't exist yet. Never overwrite sections that already have content.
