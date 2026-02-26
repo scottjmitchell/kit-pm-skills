@@ -123,7 +123,7 @@ Pass a Linear ticket ID (e.g. `/prd ECO-123`):
 1. Fetches the full ticket and related issues from Linear
 2. Drafts a refined PRD based on the ticket content and your instructions
 3. Runs a **lewis** critical review
-4. On approval, creates a Linear issue
+4. On approval, updates the existing Linear issue with the revised PRD content
 
 ### PRD style
 
