@@ -37,6 +37,24 @@ Then restart Claude Code and run setup:
 
 ---
 
+## Upgrading from an earlier version
+
+> **v1.3.0 introduces automatic update notifications** — but getting to v1.3.0 requires one manual step. After that, future updates are handled for you.
+
+```bash
+cd ~/.claude/plugins/marketplaces/kit-pm-skills && git pull
+```
+
+Restart Claude Code, then run:
+
+```bash
+/kit-pm-skills:setup
+```
+
+`/setup` will write your current version to config and wire up a notification hook. From that point on, whenever the plugin is updated you'll see a prompt in Claude Code — and `/update` will handle everything else.
+
+---
+
 ## Setup
 
 `/setup` personalises the plugin for your workspace. Run it once after install, or re-run it any time to update your preferences.
