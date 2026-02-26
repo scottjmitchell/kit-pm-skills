@@ -24,6 +24,7 @@ Then restart Claude Code and run setup:
 | Command | What it does |
 |---|---|
 | `/kit-pm-skills:setup` | Personalises the plugin for your workspace — run this first |
+| `/kit-pm-skills:update` | Checks for plugin updates, pulls if available, and configures any new settings incrementally |
 | `/kit-pm-skills:prd <topic>` | Researches and drafts a new PRD, then runs a critical review |
 | `/kit-pm-skills:prd <ticket ID>` | Fetches an existing Linear ticket and produces a refined PRD |
 | `/kit-pm-skills:ticket <description>` | Drafts and creates a Linear ticket — feature, bug, or spike |
@@ -64,6 +65,32 @@ Then restart Claude Code and run setup:
 ### MCP authentication
 
 Linear and Granola use OAuth. After setup, restart Claude Code — it will prompt you to authenticate in your browser on first use. kit-docs is public and requires no authentication.
+
+---
+
+## /update
+
+Checks for remote updates, pulls if available, then runs incremental setup for any new settings added since your last setup.
+
+### Flow
+
+1. Reads the current local plugin version and your config's `installed_version`
+2. Runs `git fetch` to check for remote commits
+3. If updates are available: shows the version bump and new commits, asks to confirm before pulling
+4. After pulling (or if already up to date): scans your config for missing or new fields
+5. Asks only the questions for missing fields — skips anything already configured
+6. Updates config and stamps `installed_version` with the current version
+
+### Proactive notifications
+
+After `/setup`, a `UserPromptSubmit` hook is added to `.claude/settings.json`. This hook runs a lightweight script (`check-version.sh`) that compares the plugin version to your config's `installed_version`. If they differ — because the plugin was updated via `git pull` — it outputs a once-per-day notice asking you to run `/update`.
+
+### Example usage
+
+```
+/update                    # check for updates and apply new settings
+/kit-pm-skills:update      # fully qualified form
+```
 
 ---
 

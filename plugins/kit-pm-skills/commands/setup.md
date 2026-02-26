@@ -18,6 +18,14 @@ mkdir -p .claude/pm-skills .claude/agents prds shipped-notes .claude/state
 
 Check if `.claude/pm-skills/config.md` already exists. If it does, let the user know you found an existing config and that this will update it.
 
+**Version check:**
+Read the current plugin version:
+```bash
+python3 -c "import json; d=json.load(open('$HOME/.claude/plugins/marketplaces/kit-pm-skills/plugins/kit-pm-skills/.claude-plugin/plugin.json')); print(d.get('version','unknown'))"
+```
+
+Read the `installed_version` from `.claude/pm-skills/config.md` if it exists (look for `installed_version:` line). If the config exists but `installed_version` differs from the plugin version, note this — it means the plugin was updated since last setup. The setup will write the current version at the end.
+
 ---
 
 ### Step 2: Fetch Linear teams and Squad labels
@@ -132,6 +140,9 @@ ticket_team: [team name — same as prd_team if they chose "Same as PRDs"]
 ## Integrations
 granola: [yes or no]
 kit_docs: [yes or no]
+
+## Plugin
+installed_version: [current plugin version from Step 1]
 ```
 
 ---
@@ -789,6 +800,43 @@ Use: Yes / No / Partial / [short phrase]. Group features logically — not a fla
 
 ---
 
+### Step 8d: Set up version-check hook
+
+This adds a lightweight Claude Code hook that notifies you (once per day) when kit-pm-skills has been updated but `/update` hasn't been run yet.
+
+Get the absolute path to the check script:
+```bash
+echo "$HOME/.claude/plugins/marketplaces/kit-pm-skills/check-version.sh"
+```
+
+Read `.claude/settings.json` if it exists, otherwise start from `{}`.
+
+Add a `UserPromptSubmit` hook entry if one for `check-version.sh` doesn't already exist:
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/[username]/.claude/plugins/marketplaces/kit-pm-skills/check-version.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Use the actual expanded `$HOME` path (not the literal `$HOME` string) when writing the command value. Merge with any existing hooks — do not overwrite other hooks if present.
+
+Write the result back to `.claude/settings.json`.
+
+---
+
 ### Step 9: Confirm
 
 ```
@@ -812,6 +860,8 @@ MCPs configured (.mcp.json):
   ✅ Linear (authenticate in browser on next launch)
   [✅ Granola — if selected]
   [✅ kit-docs — if selected]
+
+  🔔 Version-check hook: active (.claude/settings.json)
 
 👉 Restart Claude Code for MCP changes to take effect.
 👉 Run /kit-pm-skills:prd or /kit-pm-skills:shipped to get started.
