@@ -26,6 +26,7 @@ Then restart Claude Code and run setup:
 | `/kit-pm-skills:setup` | Personalises the plugin for your workspace — run this first |
 | `/kit-pm-skills:prd <topic>` | Researches and drafts a new PRD, then runs a critical review |
 | `/kit-pm-skills:prd <ticket ID>` | Fetches an existing Linear ticket and produces a refined PRD |
+| `/kit-pm-skills:ticket <description>` | Drafts and creates a Linear ticket — feature, bug, or spike |
 | `/kit-pm-skills:shipped <feature>` | Generates an internal Slack post and external developer release note |
 | `/kit-pm-skills:api <request>` | Makes a Kit API request — sets up credentials on first use |
 
@@ -97,6 +98,40 @@ For any request that creates, updates, or deletes data, `/api` shows you exactly
 /api tag subscriber 12345 with the "newsletter" tag
 /api show me my broadcast stats
 /api bulk import subscribers from this CSV: name,email\nSam,sam@example.com
+```
+
+---
+
+## /ticket
+
+Drafts and creates a Linear ticket from a plain-English description. Works for features, bugs, and spikes.
+
+### Flow
+
+1. Detects ticket type (feature, bug, or spike) from your description — asks if ambiguous
+2. Asks 2–3 targeted questions for anything genuinely missing (Figma link, reproduction steps, timebox, etc.)
+3. Drafts a properly structured ticket using the correct template for the type
+4. Shows the draft for your review before creating anything
+5. Creates the issue in your configured Linear team with your configured Squad label, then opens it in your browser
+
+### Templates
+
+**Feature** — user story, context, acceptance criteria (testable, covering happy path and edge cases), design link, technical notes (optional), out of scope
+
+**Bug** — observed behaviour, expected behaviour, steps to reproduce, environment, impact
+
+**Spike** — specific question to answer, context, suggested approach (optional), expected output, timebox, resources
+
+### Acceptance criteria
+
+Criteria are testable and describe outcomes, not implementation. If you can't write acceptance criteria, the scope isn't ready — the command will flag this rather than leaving them vague.
+
+### Example usage
+
+```
+/ticket add search to the webhooks list page
+/ticket fix 404 error when clicking "Use this template" on a VA template
+/ticket investigate rate limiting options for API V4
 ```
 
 ---
