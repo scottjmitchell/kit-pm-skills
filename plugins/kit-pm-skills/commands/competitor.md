@@ -58,7 +58,7 @@ Adjust based on the topic — add competitors directly relevant to the feature a
 
 Spawn all agents in a single message. Use `model: "haiku"` for all.
 
-**Agent 1 — Kit's current state** (`subagent_type: "general-purpose"`)
+**Agent 1 — Kit's current state** (`subagent_type: "kit-knowledge-curator"`)
 
 ```
 Research Kit's current state for the following topic: [TOPIC FROM $ARGUMENTS]

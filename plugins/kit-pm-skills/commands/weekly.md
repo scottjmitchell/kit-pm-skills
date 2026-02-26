@@ -1,5 +1,5 @@
 ---
-description: Generate a weekly Lattice check-in from your Linear, Granola, and Notion activity. Use this any time you need to write your weekly manager update — even with no context. Just run it and answer a few quick questions about your wins and priorities. Use when the user says "write my weekly", "weekly update", "Lattice check-in", "weekly review", or wants to write up what they did this week.
+description: Generate a weekly Lattice check-in from your Linear, Granola, Slack, and Notion activity. Use this any time you need to write your weekly manager update — even with no context. Just run it and answer a few quick questions about your wins and priorities. Use when the user says "write my weekly", "weekly update", "Lattice check-in", "weekly review", or wants to write up what they did this week.
 argument-hint: <optional focus or context>
 allowed-tools: [Bash, Read, Write, Task, AskUserQuestion]
 ---
@@ -15,6 +15,8 @@ Generate a weekly Lattice check-in from the past 7 days of activity.
    - `ticket_team` — Linear team to query for weekly activity (fall back to `prd_team`, then ask)
    - `feature_areas` — PM's owned features (used to focus research)
    - `granola` — `yes` or `no` (skip Granola agent if `no`)
+   - `slack` — `yes` or `no` (enables Slack activity agent, default `no`)
+   - `notion_todos_db` — Notion todos data source ID (optional — enables Notion agent if present, e.g. `collection://xxxx`)
    - `english` — British or American (default: British)
 3. Read `.claude/pm-skills/communication-styles/style-weekly-update.md` for the output format and voice guidelines. If this file doesn't exist, run `/setup` first.
 
@@ -27,6 +29,9 @@ If any of the following are missing, collect them before proceeding. Batch missi
 | `ticket_team` (no fallback) | "Which Linear team should `/weekly` query for your activity?" | Fetched teams + "Other — I'll type mine" |
 | `feature_areas` | "What feature areas do you own?" | "Automations" / "Extensibility" / "Email Sending" / "Other — I'll describe mine" |
 | `granola` | "Do you use Granola? (Used as a content source for meetings and decisions this week, plus tone matching)" | "Yes" / "No" |
+| `slack` | "Should `/weekly` search Slack for activity? (Captures cross-team discussions and decisions not in Linear)" | "Yes" / "No" |
+
+> `notion_todos_db` is advanced config — not collected interactively. To enable, add `notion_todos_db: collection://<your-db-id>` to `.claude/pm-skills/config.md` manually.
 
 After collecting, update `.claude/pm-skills/config.md`: add missing keys, don't reformat existing values.
 
@@ -34,7 +39,7 @@ After collecting, update `.claude/pm-skills/config.md`: add missing keys, don't 
 
 ## Step 1: Launch parallel research agents
 
-Spawn agents **in a single message**. Both use `model: "haiku"`.
+Spawn all agents **in a single message**. All use `model: "haiku"`.
 
 **Agent 1 — Linear activity** (`subagent_type: "general-purpose"`)
 
@@ -80,11 +85,49 @@ If Granola MCP tools are unavailable, write "Granola unavailable" to the file an
 
 If `granola: no`, skip Agent 2 and write `.claude/state/weekly-granola.md` with: "Granola not configured."
 
+**Agent 3 — Slack activity** (`subagent_type: "general-purpose"`) — *only spawn if `slack: yes`*
+
+```
+Search for recent Slack activity to capture cross-team discussions, decisions, and context from the past 7 days.
+
+1. Search public channels for recent messages — try slack_search_public with queries like "from:me" or topic-specific searches related to [feature_areas]
+2. Read any threads where the PM was actively discussing decisions, blockers, or updates
+3. Focus on identifying:
+   - Key decisions made or discussions led
+   - Cross-team collaboration moments
+   - Any blockers or challenges mentioned
+   - Announcements or updates shared
+
+Write findings to .claude/state/weekly-slack.md.
+Summarise key themes, decisions, and notable conversations — don't list every message.
+If Slack MCP tools are unavailable, write "Slack unavailable" to the file and continue.
+```
+
+If `slack: no`, skip Agent 3 and write `.claude/state/weekly-slack.md` with: "Slack not configured."
+
+**Agent 4 — Notion todos** (`subagent_type: "general-purpose"`) — *only spawn if `notion_todos_db` is set in config*
+
+```
+Review the PM's Notion todos to summarise completed work and upcoming priorities.
+
+1. Query the todos database: [notion_todos_db from config]
+2. Fetch todos with status "Done" — these are completed work and wins this week
+3. Fetch todos with status "In progress" — current focus areas and carry-overs
+4. Fetch todos with status "Not started" that have due dates in the coming week — upcoming priorities
+
+For each todo, capture: task name, status, task type, effort level, and due date (if present).
+
+Write findings to .claude/state/weekly-notion.md. Format as three sections: Completed, In Progress, Upcoming.
+If Notion MCP tools are unavailable, write "Notion unavailable" to the file and continue.
+```
+
+If `notion_todos_db` is not set, skip Agent 4 entirely — do not create the file.
+
 ---
 
 ## Step 2: Ask clarifying questions
 
-After both agents return, read the research files. Then use `AskUserQuestion` to ask all questions at once — tailor based on what the data shows:
+After all agents return, read all research files that exist. Then use `AskUserQuestion` to ask all questions at once — tailor based on what the data shows:
 
 - "What's your biggest win this week? Anything else I should highlight?"
 - "What are your 1-3 most important priorities for next week? What does 'done' look like for each?"
@@ -100,7 +143,7 @@ Keep these confirmation-style where possible — reference specific items from t
 Spawn a **copywriter** Task agent (`subagent_type: "copywriter"`) with all gathered context:
 
 ```
-Write a weekly Lattice check-in for a PM. I'm providing two content sources — Linear and Granola — plus tone samples and the PM's own clarifications.
+Write a weekly Lattice check-in for a PM. I'm providing up to four content sources — Linear, Granola, Slack, and Notion todos — plus the PM's own clarifications.
 
 First, read the style guide at `.claude/pm-skills/communication-styles/style-weekly-update.md` — it defines the structure, section rules, and voice.
 
@@ -110,12 +153,18 @@ First, read the style guide at `.claude/pm-skills/communication-styles/style-wee
 ## Granola Meetings — Accomplishments, Decisions & Tone
 [Insert contents of .claude/state/weekly-granola.md]
 
+## Slack Activity
+[Insert contents of .claude/state/weekly-slack.md — omit section if file says "not configured"]
+
+## Notion Todos
+[Insert contents of .claude/state/weekly-notion.md — omit section if file doesn't exist]
+
 ## PM's Clarifications
 [Insert answers from Step 2]
 
 ---
 
-Both Linear AND Granola are content sources. Linear captures shipped tickets and in-progress work; Granola captures decisions made, stakeholder alignment, research completed, and cross-team unblocking — things that are real wins but may not have Linear tickets. Treat both equally when deciding what goes in "What's going well" and "Align on expectations".
+All provided sources are equally valid content. Linear captures shipped tickets and in-progress work; Granola captures decisions, stakeholder alignment, and cross-team wins that may not have Linear tickets; Slack captures discussions and decisions not recorded elsewhere; Notion todos capture personal commitments and admin work. Draw from all of them when building "What's going well" and "Align on expectations".
 
 Use the Granola tone samples to match voice — vocabulary, energy, how outcomes are framed. This should sound like the PM dashed it off themselves, not like an AI summary.
 
@@ -136,6 +185,8 @@ Take the copywriter's output and:
 
 ## Step 5: Clean up
 
-Delete temporary files:
+Delete temporary files that exist:
 - `.claude/state/weekly-linear.md`
 - `.claude/state/weekly-granola.md`
+- `.claude/state/weekly-slack.md`
+- `.claude/state/weekly-notion.md` (if created)

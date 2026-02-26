@@ -29,7 +29,7 @@ Then restart Claude Code and run setup:
 | `/kit-pm-skills:ticket <description>` | Drafts and creates a Linear ticket — feature, bug, or spike |
 | `/kit-pm-skills:competitor <topic>` | Researches and produces a competitor analysis — full or quick snapshot |
 | `/kit-pm-skills:shipped <feature>` | Generates an internal Slack post and external developer release note |
-| `/kit-pm-skills:weekly` | Drafts your weekly Lattice check-in from Linear and Granola activity |
+| `/kit-pm-skills:weekly` | Drafts your weekly Lattice check-in from Linear, Granola, Slack, and Notion activity |
 | `/kit-pm-skills:api <request>` | Makes a Kit API request — sets up credentials on first use |
 
 ---
@@ -111,7 +111,7 @@ Researches and produces a competitor analysis for any feature area or topic.
 ### Flow
 
 1. Asks two questions: context (PRD context, competitive pressure, exploration, standalone) and depth (full analysis or quick snapshot)
-2. Runs parallel research agents — Kit's current state from internal docs, plus competitor research grouped for efficiency
+2. Runs parallel research agents — Kit's current state via `kit-knowledge-curator` (dev docs, help centre, Linear), plus competitor research grouped for efficiency
 3. Drafts the analysis following the style guide: insight-driven, honest about gaps, always includes Kit in comparisons
 4. For full analyses, runs a **lewis** critical review to check for unsupported claims and missing angles
 5. Saves to `competitor-analysis/YYYY-MM-DD-topic.md` and opens it
@@ -143,10 +143,11 @@ Drafts and creates a Linear ticket from a plain-English description. Works for f
 ### Flow
 
 1. Detects ticket type (feature, bug, or spike) from your description — asks if ambiguous
-2. Asks 2–3 targeted questions for anything genuinely missing (Figma link, reproduction steps, timebox, etc.)
-3. Drafts a properly structured ticket using the correct template for the type
+2. **Runs a background research agent** — searches Linear for related/duplicate issues, scans `prds/` for prior decisions and constraints. Flags any clear duplicates immediately
+3. Asks 2–3 targeted questions for anything genuinely missing (Figma link, reproduction steps, timebox, etc.)
+4. Drafts a properly structured ticket using the correct template for the type, referencing related issues and PRD context found in research
 4. Shows the draft for your review before creating anything
-5. Creates the issue in your configured Linear team with your configured Squad label, then opens it in your browser
+6. Creates the issue in your configured Linear team with your configured Squad label, then opens it in your browser
 
 ### Templates
 
@@ -179,7 +180,7 @@ Drafts a new PRD or refines an existing Linear ticket.
 1. Asks 2–4 clarifying questions, including:
    - **Pricing & Packaging depth** — full assessment (for significant new features) or abridged one-liner (for iterations)
 2. Runs two parallel research agents:
-   - **Internal context** — searches Linear, your `prds/` directory, and `my-features/` (if present), focused on your configured feature areas
+   - **Internal context** — uses the `kit-knowledge-curator` agent to search Kit dev docs, help centre, marketing site, Linear, your `prds/` directory, and `my-features/` (if present), focused on your configured feature areas
    - **Competitive research** — surveys ActiveCampaign, Mailchimp, Beehiiv, Klaviyo, and other relevant competitors; includes which plan tiers each competitor gates the feature behind
 3. Drafts the PRD using the bundled style guide and template, saved to `prds/`
 4. Runs a **lewis** critical review to surface blind spots and risks
@@ -232,11 +233,22 @@ Drafts your weekly Lattice check-in from the past 7 days of activity.
 
 ### Flow
 
-1. Queries Linear for completed issues, in-progress work, and project updates in your configured team
-2. If Granola is configured, fetches recent meetings to extract discussion themes and match your tone of voice
-3. Asks a few quick questions — biggest wins, next-week priorities, any blockers
-4. Hands off to the **copywriter** to produce the check-in in your natural voice, following the weekly update style guide
-5. Saves to `weekly-updates/YYYY-MM-DD.md` and opens it
+1. Runs up to four parallel research agents depending on your configured integrations:
+   - **Linear** — completed issues, in-progress work, project updates (always active)
+   - **Granola** — meeting wins, decisions, and tone of voice samples (if `granola: yes`)
+   - **Slack** — cross-team discussions and decisions not captured in Linear (if `slack: yes`)
+   - **Notion todos** — completed and in-progress personal tasks (if `notion_todos_db` is set in config)
+2. Asks a few quick questions — biggest wins, next-week priorities, any blockers
+3. Hands off to the **copywriter** to produce the check-in in your natural voice, drawing from all active sources
+4. Saves to `weekly-updates/YYYY-MM-DD.md` and opens it
+
+### Configuration
+
+| Config key | How to enable |
+|---|---|
+| `granola` | Set during `/setup` or add `granola: yes` to config |
+| `slack` | Set during first `/weekly` run, or add `slack: yes` to config |
+| `notion_todos_db` | Advanced — add `notion_todos_db: collection://<your-db-id>` to config manually |
 
 ### Format
 
@@ -261,9 +273,10 @@ These agents are included in the plugin and available in your workspace after in
 |---|---|---|
 | `lewis` | opus | Critical reviewer for PRDs, hypotheses, and strategy docs. Surfaces blind spots, weak assumptions, and risks using 🔴/🟡/🔵 severity ratings. |
 | `copywriter` | sonnet | Professional editor for PM writing. Polishes PRDs, Slack posts, emails, and release notes. Returns clean output only. |
+| `kit-knowledge-curator` | sonnet | Kit-specific researcher. Searches dev docs MCP, help.kit.com, kit.com, Linear, and internal docs for verified Kit feature state. Used by `/prd` and `/competitor` for the internal research agent — never guesses or speculates. |
 | `coder` | sonnet | Kit API specialist. Executes API requests via curl, handles OAuth token refresh, parses responses, and checks endpoint docs via kit-docs MCP before every call. Used by `/api`. |
 
-`lewis` and `copywriter` are aware of the bundled style guides and apply them when reviewing or editing relevant document types. Running `/setup` creates personalised versions of `lewis` and `copywriter` in `.claude/agents/` — if you already have a `coder` agent in your workspace, that takes precedence over the plugin's version.
+`lewis`, `copywriter`, and `kit-knowledge-curator` are aware of the bundled style guides and apply them when reviewing, editing, or producing documents. Running `/setup` creates personalised versions of `lewis` and `copywriter` in `.claude/agents/`. If you already have any of these agents in your workspace, your version takes precedence over the plugin's.
 
 ---
 

@@ -73,7 +73,7 @@ Also ask: **Pricing & Packaging depth** — Is this a significant new feature or
 
 Spawn **two** Task agents **in a single message**, both using `model: "haiku"`.
 
-**Agent 1 — Internal Context** (`subagent_type: "general-purpose"`, `model: "haiku"`)
+**Agent 1 — Internal Context** (`subagent_type: "kit-knowledge-curator"`, `model: "haiku"`)
 
 ```
 Search for internal context related to the feature area below.
