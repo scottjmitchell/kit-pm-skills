@@ -355,6 +355,397 @@ If `.claude/.gitignore` doesn't exist, create it with those three lines.
 
 ---
 
+### Step 8c: Install communication style templates
+
+Run:
+```bash
+mkdir -p .claude/pm-skills/communication-styles
+```
+
+Write `.claude/pm-skills/communication-styles/style-prd.md`:
+
+```markdown
+# PRD Writing Guidelines
+
+PRDs serve engineering, design, product marketing, support, and exec. A good PRD answers:
+1. What problem are we solving and why does it matter?
+2. What are we building to solve it?
+3. How will we know if it worked?
+
+**Voice:** Problem-first. Confident but honest. Use the English spelling from config. Active voice. No corporate speak.
+
+**TL;DR:** One paragraph, no bullets. Lead with user pain, not the solution. Under 100 words.
+
+**The Problem:** Three perspectives — user friction (specific, tangible), business impact (metrics where possible), competitive context (are we behind?). Say "we don't have data" rather than making up numbers.
+
+**Goals & Success:** 2–4 measurable metrics. "Reduce churn by 15%" not "improve retention".
+
+**Key Features:** Bullet lists. Mark MVP vs. fast follow vs. out of scope. Be ruthless about scope.
+
+**Open Issues:** Frame as questions. Note who needs to weigh in.
+
+**Launch Checklist:** Leave as template checkboxes — except the DMF naming item: recommend **Yes** for net new creator-facing features, **No** for iterations.
+```
+
+Write `.claude/pm-skills/communication-styles/prd-template.md`:
+
+```markdown
+## TL;DR
+[One paragraph. Lead with the problem, mention who it affects, state the impact, describe the approach in one sentence.]
+
+---
+
+## Problem Alignment
+
+### The Problem
+**User friction:** [Specific pain. Real examples if possible.]
+**Business impact:** [What does this cost? Churn, support load, competitive losses?]
+**Competitive context:** [How do competitors handle this? Are we behind?]
+
+### High-level Approach
+[1–3 paragraphs. Solution direction + rough scope. Mention phasing if multi-part.]
+
+### Goals & Success
+1. [Specific metric — e.g. "Reduce X from Y% to Z% within 6 months"]
+2. [Adoption metric — e.g. "30% of power users adopt within 90 days"]
+3. [Optional third metric]
+
+---
+
+## Solution Alignment
+
+### Key Features
+
+**MVP**
+- [Feature 1]
+- [Feature 2]
+
+**Fast Follow**
+- [Feature 3]
+
+**Out of Scope**
+- [Feature 4 — explain why]
+
+### Key Flows
+[Figma links, screenshots, or written descriptions of key user journeys.]
+
+### Open Issues & Key Decisions
+1. [Question — explain why unresolved, note who needs to weigh in]
+
+---
+
+## Pricing & Packaging
+
+### Feature Assessment
+| Question | Response | Notes |
+|---|---|---|
+| What does this feature help creators do? | | |
+| Highly requested? | Yes / No | |
+| Primary creator segment? | Just starting out / Established / Enterprise / All | |
+| Advanced versions planned? | Yes / No | |
+| Differentiation level? | Table stakes / Critical / Differentiating | |
+| Annual cost to Kit? | Free / Low / Medium / High | |
+
+**Quadrant:** [Table-stakes / Differentiator / Nice-to-have / Dissatisfier — 1–2 sentence rationale]
+
+### Plan Recommendation
+**Recommended plan:** [Free / Creator / Creator Pro / All plans]
+
+**Rationale:** [Which plan principles does this satisfy? Be specific.]
+
+### Competitor Packaging
+[How do key competitors package this feature? Which plan tiers gate access? Any usage limits at lower tiers?]
+
+> **Abridged alternative** (for smaller iterations/improvements):
+> **Recommended plan:** [Free / Creator / Creator Pro / All plans]
+> **Rationale:** [1–2 sentences]
+
+---
+
+## Launch
+
+### Launch Checklist
+
+**Support**
+- [ ] New or updated help centre articles needed?
+- [ ] Support training required?
+
+**Data**
+- [ ] Mixpanel dashboard required?
+- [ ] New Segment events required?
+
+**Product Marketing**
+- [ ] Announcement needed?
+- [ ] Onboarding experience needed?
+- [ ] Does this feature need a name? (DMF) — **Recommended: Yes / No** — [rationale]
+
+**Plans**
+- [ ] Available on certain plans only?
+
+**Platform**
+- [ ] New API or plugin surface area?
+- [ ] Infrastructure risk?
+
+**Design**
+- [ ] Separate mobile and desktop flows?
+
+**Legal**
+- [ ] Any risk?
+```
+
+Write `.claude/pm-skills/communication-styles/style-release-notes.md`:
+
+```markdown
+# Release Notes Style Guide
+
+## Internal Slack Post (#all-shipped)
+
+**Structure:**
+- Emoji + bold title (e.g. `*Custom Field Webhooks*`)
+- `*What shipped:*` — one sentence on the feature/capability
+- `*Problem solved:*` — why it matters; user pain or business opportunity
+- `*How it works:*` — 2–4 bullets, no jargon; translate technical terms into user benefits
+- `*Expected impact:*` — user/business outcome
+- `*Links:*` — Mixpanel dashboard, Linear project, docs
+
+**Slack mrkdwn format (not markdown):**
+- `*bold*` not `**bold**`
+- `_italic_` not `*italic*`
+- `•` bullets, not `-` dashes
+- `` `code` `` for inline code
+- `<url|link text>` for links
+
+**Voice:** Celebratory but grounded. Accessible to non-technical readers. Active voice, present tense. Bold key terms.
+
+## External Developer Release Note
+
+**Structure:** No headings. Tight paragraph or 3–5 bullets. Lead with what's new → what it enables → how to use it → link to docs.
+
+**Voice:** Technically precise. Benefit-focused, no marketing fluff. Assume developer fluency. Include endpoint paths, HTTP methods, OAuth requirements, parameter names where relevant.
+
+## File Output Structure
+
+```
+# [Feature Name] — Shipped Release Notes
+
+> Generated: [today's date] | Project: [Linear project link]
+> Builders: [all unique assignees from completed issues]
+
+---
+
+## Internal Slack Post (#all-shipped)
+
+[Slack mrkdwn content in a code fence]
+
+---
+
+## External Developer Release Note *(omit entire section if not needed)*
+
+[Developer-facing content]
+```
+```
+
+Write `.claude/pm-skills/communication-styles/style-ticket.md`:
+
+```markdown
+# Linear Ticket Style Guide
+
+## Titles
+
+Pattern: `[Action verb] [what]`
+
+**Good:** "Add search to automations library", "Fix 404 on VA template button", "Investigate rate limiting strategy for API V4"
+
+**Bad:** "Improve automations" (vague), "Bug fix" (which one?), "Add a blue search input in the top-left corner" (over-specifying the solution)
+
+---
+
+## Feature Ticket
+
+**User Story**
+As a [persona], I want to [goal], so that [benefit].
+
+**Context**
+[1–2 sentences: why now? What prompted this?]
+
+**Acceptance Criteria**
+- [ ] [Happy path condition]
+- [ ] [Edge case]
+- [ ] [Error state if relevant]
+- [ ] [Additional condition]
+
+**Design**
+[Figma link — or "Design in progress" if not yet final]
+
+**Technical Notes**
+[Only include if there's something engineering needs to know. Omit entirely if nothing to add.]
+
+**Out of Scope**
+[What this ticket explicitly does NOT include — prevents scope creep]
+
+---
+
+## Bug Ticket
+
+**What's Happening**
+[Observed behaviour in 1–2 sentences]
+
+**What Should Happen**
+[Expected behaviour]
+
+**Steps to Reproduce**
+1. [Step]
+2. [Step]
+3. [Step]
+
+**Environment**
+[Production / Staging / All environments]
+
+**Impact**
+[Who's affected? Rough volume? Is it blocking revenue, data, or a core workflow?]
+
+**Screenshots / Links**
+[If relevant — omit section if nothing to add]
+
+---
+
+## Spike Ticket
+
+**Question to Answer**
+[Specific question — what exactly do we need to figure out?]
+
+**Context**
+[Why do we need this now?]
+
+**Suggested Approach**
+[Optional — ideas on how to investigate. Omit if none.]
+
+**Expected Output**
+[What does "done" look like? A Slack post in #ecosystem-eng? A recommendation doc? A PR?]
+
+**Timebox**
+[How long to spend before checking in]
+
+**Resources**
+[Relevant links, docs, or code pointers — omit section if none]
+
+---
+
+## Acceptance Criteria Guidance
+
+Good criteria are testable and describe outcomes, not implementation. Cover the happy path AND edge cases.
+
+- **Good:** "User can move an automation into a folder via drag-and-drop or dropdown"
+- **Bad:** "Add a blue 'Move to folder' button in the top-right corner" (that's design's job)
+
+If you can't write acceptance criteria, the scope isn't ready — flag this to the user rather than leaving them vague.
+```
+
+Write `.claude/pm-skills/communication-styles/style-competitor.md`:
+
+```markdown
+# Competitor Analysis Style Guide
+
+## Writing Principles
+
+- Insight-driven, not a feature checklist. Every comparison should lead to a "so what" for Kit.
+- Always include Kit in the feature comparison table, even when Kit has nothing.
+- Be honest about gaps. Don't invent strengths or bury weaknesses.
+- TL;DR = the most important insight, not a summary of every section.
+- Use Yes / No / Partial / [short phrase] in comparison tables — not paragraphs.
+
+---
+
+## Full Analysis Format
+
+# Competitor Analysis: [Topic]
+
+**Date**: [Month YYYY]
+**Context**: [One sentence on what prompted this — PRD context, strategic review, etc.]
+
+---
+
+## TL;DR
+
+[One paragraph. The key competitive insight — not a summary of every section, but the most important thing to understand from this analysis.]
+
+---
+
+## Competitive Landscape
+
+- **ActiveCampaign**: [2–3 sentences on positioning, target audience, how they approach this space]
+- **Klaviyo**: [2–3 sentences]
+- **Mailchimp**: [2–3 sentences]
+- **Beehiiv**: [2–3 sentences]
+- **[Others if included]**: [2–3 sentences]
+
+---
+
+## Feature Comparison
+
+| Feature | ActiveCampaign | Klaviyo | Mailchimp | Beehiiv | Kit |
+|---------|---------------|---------|-----------|---------|-----|
+| [Feature group] | | | | | |
+| [Feature] | | | | | |
+
+Use: Yes / No / Partial / [short phrase]. Group features logically — not a flat list.
+
+---
+
+## Key Insights
+
+[Interpretation, not facts restated. What patterns emerge? What do competitors' choices reveal about their strategy? 3–5 paragraphs or well-structured bullets.]
+
+---
+
+## Gaps & Opportunities
+
+**Where Kit is behind:**
+[Be direct. "Kit lacks X, which is a table-stakes expectation for power users."]
+
+**Where Kit is ahead or differentiated:**
+[Acknowledge strengths honestly. Don't invent them.]
+
+**Opportunities:**
+[Frame gaps as opportunities — "Kit lacks X, which is an opportunity to differentiate by doing Y"]
+
+---
+
+## Recommendations
+
+1. [Recommendation]
+2. [Recommendation]
+3. [Recommendation]
+
+**Timing note**: [If relevant — when does this need to happen given competitive context?]
+
+---
+
+## Quick Snapshot Format
+
+# Competitor Snapshot: [Topic]
+
+**Date**: [Month YYYY]
+
+## TL;DR
+
+[One paragraph — the key competitive insight.]
+
+## Feature Comparison
+
+| Feature | ActiveCampaign | Klaviyo | Mailchimp | Beehiiv | Kit |
+|---------|---------------|---------|-----------|---------|-----|
+
+## Key Takeaways
+
+- [Insight + implication for Kit]
+- [Insight + implication for Kit]
+- [Insight + implication for Kit]
+- [Recommendation]
+```
+
+---
+
 ### Step 9: Confirm
 
 ```

@@ -263,13 +263,22 @@ your-workspace/
 
 ## References
 
-Style guides and templates are bundled in `references/` for human reading. The commands have the key rules inlined and don't depend on these files at runtime.
+Style guides and templates are bundled in `references/` for human reading and for runtime use. Running `/setup` installs concise runtime versions to `.claude/pm-skills/communication-styles/` in your workspace — commands read from these files when drafting.
+
+### Communication styles (`references/communication-styles/`)
+
+| File | Used by | Contents |
+|---|---|---|
+| `style-prd.md` | `/prd` | PRD voice, tone, structure, and common mistakes |
+| `prd-template.md` | `/prd` | Full PRD template including Pricing & Packaging section |
+| `style-release-notes.md` | `/shipped` | Release notes format for internal Slack and external changelog |
+| `style-ticket.md` | `/ticket` | Feature, bug, and spike ticket templates with acceptance criteria guidance |
+| `style-competitor.md` | `/competitor` | Full analysis and quick snapshot formats with writing principles |
+
+### Other references
 
 | File | Contents |
 |---|---|
-| `references/style-prd.md` | PRD voice, tone, structure, and common mistakes |
-| `references/style-release-notes.md` | Release notes format for internal Slack and external changelog |
-| `references/prd-template.md` | Blank PRD template |
 | `references/pricing-packaging.md` | Pricing & Packaging philosophy — background questions, 2×2 assessment, Free/Creator/Creator Pro plan principles, competitor packaging guidance |
 
 ---

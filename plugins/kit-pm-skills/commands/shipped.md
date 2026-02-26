@@ -20,6 +20,8 @@ Before doing anything else:
 
 If `shipped-notes/MEMORY.md` exists, read it for context on past conventions before starting.
 
+Read `.claude/pm-skills/communication-styles/style-release-notes.md` for format, Slack mrkdwn rules, voice guidelines, and the output file structure. If this file doesn't exist, run `/setup` first.
+
 ### Config check
 
 If any of the following are missing or empty, ask for them in a single `AskUserQuestion` call before proceeding. Skip entirely if all are present.
@@ -38,35 +40,6 @@ After collecting answers, update `.claude/pm-skills/config.md`: add missing keys
    - **No — Slack post only**
 
    Store the answer as `needs_dev_changelog: yes` or `needs_dev_changelog: no`.
-
----
-
-## Release Notes Style Guide
-
-### Internal Slack Post (#all-shipped)
-
-**Structure:**
-- Emoji + bold title (e.g. `*Custom Field Webhooks*`)
-- `*What shipped:*` — one sentence on the feature/capability
-- `*Problem solved:*` — why it matters; user pain or business opportunity
-- `*How it works:*` — 2–4 bullets, no jargon; translate technical terms into user benefits
-- `*Expected impact:*` — user/business outcome
-- `*Links:*` — Mixpanel dashboard, Linear project, docs
-
-**Slack mrkdwn format (not markdown):**
-- `*bold*` not `**bold**`
-- `_italic_` not `*italic*`
-- `•` bullets, not `-` dashes
-- `` `code` `` for inline code
-- `<url|link text>` for links
-
-**Voice:** Celebratory but grounded. Accessible to non-technical readers. Active voice, present tense. Bold key terms.
-
-### External Developer Release Note *(only if `needs_dev_changelog: yes`)*
-
-**Structure:** No headings. Tight paragraph or 3–5 bullets. Lead with what's new → what it enables → how to use it → link to docs.
-
-**Voice:** Technically precise. Benefit-focused, no marketing fluff. Assume developer fluency. Include endpoint paths, HTTP methods, OAuth requirements, parameter names where relevant.
 
 ---
 
@@ -150,6 +123,8 @@ Spawn a **copywriter** Task agent (`subagent_type: "copywriter"`) with all gathe
 ```
 Write shipped release notes for a feature. I'm providing feature context, internal documentation, tone of voice, and format requirements.
 
+First, read the style guide at `.claude/pm-skills/communication-styles/style-release-notes.md` — it defines format, Slack mrkdwn rules, voice guidelines, and the exact output file structure to use.
+
 ## Feature Context (from Linear)
 [Insert contents of .claude/state/shipped-linear.md]
 
@@ -161,50 +136,10 @@ Write shipped release notes for a feature. I'm providing feature context, intern
 
 ---
 
-## Style Guide
-
-### Internal Slack Post
-Structure:
-- Emoji + bold title
-- *What shipped:* one sentence
-- *Problem solved:* user pain or business opportunity
-- *How it works:* 2–4 bullets, jargon-free
-- *Expected impact:* user/business outcome
-- *Links:* dashboards, Linear project, docs
-
-Slack mrkdwn (not markdown): *bold*, _italic_, • bullets, `code`, <url|link text> for links
-Voice: Celebratory but grounded. Accessible to non-technical readers. Active voice, present tense.
-Wrap the entire Slack post in a markdown code fence so it's easy to copy.
-
-### External Developer Release Note *(only include if needs_dev_changelog: yes)*
-Structure: No headings. Tight paragraph or 3–5 bullets. Lead with what's new → what it enables → how to use it → docs link.
-Voice: Technically precise. Benefit-focused, no marketing fluff. Include endpoint paths, HTTP methods, OAuth requirements where relevant.
-Length: Extremely concise — changelog entry, not blog post.
-
----
-
-## Output Structure
-
-# [Feature Name] — Shipped Release Notes
-
-> Generated: [today's date] | Project: [Linear project link]
-> Builders: [all unique assignees from completed issues]
-
----
-
-## Internal Slack Post (#all-shipped)
-
-[Slack mrkdwn content in a code fence]
-
----
-
-## External Developer Release Note *(omit entire section if needs_dev_changelog: no)*
-
-[Developer-facing content]
-
----
-
-Match the tone of voice samples closely — vocabulary, energy, how value and impact are framed. If no tone samples were available, use a professional, accessible, team-focused voice. The notes should sound human, not like a generic PM template.
+Additional notes:
+- Wrap the Slack post in a markdown code fence so it's easy to copy.
+- Omit the External Developer Release Note section entirely if needs_dev_changelog: no.
+- Match the tone of voice samples closely — vocabulary, energy, how value and impact are framed. If no tone samples were available, use a professional, accessible, team-focused voice. The notes should sound human, not like a generic PM template.
 
 Write the complete file content and return it.
 ```

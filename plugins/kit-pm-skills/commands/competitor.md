@@ -125,104 +125,11 @@ After all agents return, read all research files. If any competitor's coverage i
 
 ## Step 5: Draft the analysis
 
+Read `.claude/pm-skills/communication-styles/style-competitor.md` for both the full analysis format and quick snapshot format, plus writing principles. If this file doesn't exist, run `/setup` first.
+
 Write in `english` from config. Follow the style guide: insight-driven, not a feature checklist. Every comparison should lead to a "so what". Be honest about gaps.
 
 **Always include Kit in the feature comparison table**, even when Kit has nothing.
-
----
-
-### Full analysis format
-
-```markdown
-# Competitor Analysis: [Topic]
-
-**Date**: [Month YYYY]
-**Context**: [One sentence on what prompted this — PRD context, strategic review, etc.]
-
----
-
-## TL;DR
-
-[One paragraph. The key competitive insight — not a summary of every section, but the most important thing to understand from this analysis.]
-
----
-
-## Competitive Landscape
-
-- **ActiveCampaign**: [2–3 sentences on positioning, target audience, how they approach this space]
-- **Klaviyo**: [2–3 sentences]
-- **Mailchimp**: [2–3 sentences]
-- **Beehiiv**: [2–3 sentences]
-- **[Others if included]**: [2–3 sentences]
-
----
-
-## Feature Comparison
-
-| Feature | ActiveCampaign | Klaviyo | Mailchimp | Beehiiv | Kit |
-|---------|---------------|---------|-----------|---------|-----|
-| [Feature group] | | | | | |
-| [Feature] | | | | | |
-
-Use: Yes / No / Partial / [short phrase]. Group features logically — not a flat list.
-
----
-
-## Key Insights
-
-[Interpretation, not facts restated. What patterns emerge? What do competitors' choices reveal about their strategy? What does this mean for the market? 3–5 paragraphs or well-structured bullets.]
-
----
-
-## Gaps & Opportunities
-
-**Where Kit is behind:**
-[Be direct. "Kit lacks X, which is a table-stakes expectation for power users."]
-
-**Where Kit is ahead or differentiated:**
-[Acknowledge strengths honestly. Don't invent them.]
-
-**Opportunities:**
-[Frame gaps as opportunities — "Kit lacks X, which is an opportunity to differentiate by doing Y"]
-
----
-
-## Recommendations
-
-[Specific and actionable. What should Kit actually do based on this analysis? Prioritised if possible.]
-
-1. [Recommendation]
-2. [Recommendation]
-3. [Recommendation]
-
-**Timing note**: [If relevant — when does this need to happen given competitive context?]
-```
-
----
-
-### Quick snapshot format
-
-```markdown
-# Competitor Snapshot: [Topic]
-
-**Date**: [Month YYYY]
-
-## TL;DR
-
-[One paragraph — the key competitive insight.]
-
-## Feature Comparison
-
-| Feature | ActiveCampaign | Klaviyo | Mailchimp | Beehiiv | Kit |
-|---------|---------------|---------|-----------|---------|-----|
-
-## Key Takeaways
-
-- [Insight + implication for Kit]
-- [Insight + implication for Kit]
-- [Insight + implication for Kit]
-- [Recommendation]
-```
 
 ---
 
