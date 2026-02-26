@@ -69,7 +69,7 @@ Use `AskUserQuestion` with these **5 questions**:
 
 ### Step 4: Ask round 2 questions
 
-Always ask for feature areas. If they answered "Yes" to Q3, also ask for the label.
+Always ask for feature areas and ticket team. If they answered "Yes" to Q3, also ask for the label.
 
 **Q1:** "What feature areas do you own? Use 'Other' to type your own — be specific, as this focuses research in /prd and /shipped."
 - `Automations (visual automations, rules, webhooks, RSS)`
@@ -77,7 +77,16 @@ Always ask for feature areas. If they answered "Yes" to Q3, also ask for the lab
 - `Email Sending (pipeline, deliverability, sequence scheduling)`
 - `Growth, monetisation, or subscriber acquisition`
 
-**If Q3 was "Yes", add Q2:**
+**Q2:** "Where should `/ticket` create issues by default?"
+
+- **If `linear_teams` is available:** first option is `Same as PRDs — [prd_team from Q2]`. Then include other team names from `linear_teams` (excluding the PRD team, up to 2 more). Always include `Other — I'll type mine` as the final option.
+- **If `linear_teams` is null:** show:
+  - `Same as PRDs — [prd_team from Q2]`
+  - `Different team — I'll type the name`
+
+If they select "Other" or "Different team", ask them to type the team name.
+
+**If Q3 was "Yes", add Q3:**
 
 "Which Squad label should be applied to new PRDs in Linear?"
 
@@ -106,6 +115,7 @@ preference: [British or American]
 prd_team: [team name]
 prd_label: [full label string, or blank if skipped]
 prd_create_as: [issues or projects]
+ticket_team: [team name — same as prd_team if they chose "Same as PRDs"]
 
 ## Feature Areas
 [Their answer verbatim]
@@ -354,6 +364,7 @@ Workspace configured:
   📁 Directories: prds/, shipped-notes/, .claude/state/
   🌍 English: [British/American]
   📋 Linear team for PRDs: [team name]
+  🎫 Linear team for tickets: [ticket_team — show "(same as PRDs)" if identical]
   🏷️  PRD label: [label or "none"]
   📌 PRDs created as: [issues or projects]
   ✍️  Feature areas: [their answer]

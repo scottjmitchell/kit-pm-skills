@@ -11,7 +11,7 @@ Draft and create a Linear ticket from: $ARGUMENTS
 ## Setup
 
 Read `.claude/pm-skills/config.md` if it exists. Extract and store:
-- `prd_team` — Linear team for ticket creation (default: `Product Backlog`)
+- `ticket_team` — default Linear team for tickets. Fall back to `prd_team` if not set, then `Product Backlog` if neither is set.
 - `prd_label` — label to apply (default: none)
 - `english` — British or American (default: British)
 
@@ -146,9 +146,25 @@ If you can't write acceptance criteria, the scope isn't ready — flag this to t
 
 ## Step 4: Review and create
 
-Show the draft title and description to the user. Ask if they want any changes.
+Show the draft title and description to the user. Include the target team at the bottom so it's visible before they confirm:
 
-Once confirmed, create the ticket in Linear:
-1. Use `save_issue` to create the issue in `[prd_team from config]` with status **Todo**
+```
+---
+Creating in: [ticket_team]
+```
+
+Use `AskUserQuestion` with:
+- `Looks good — create it`
+- `Change the target team`
+- `Edit the draft`
+
+**If "Change the target team":**
+Use `list_teams` from the Linear MCP to fetch all available teams. Present them as options (up to 4, plus "Other — I'll type mine" if more exist). Store the chosen team as the target for this ticket. Do not update the config — this is a one-off override.
+
+**If "Edit the draft":**
+Ask what to change, revise, and return to the top of this step.
+
+**Once confirmed**, create the ticket:
+1. Use `save_issue` to create the issue in the target team with status **Todo**
 2. If `prd_label` is set in config, apply it
 3. Open the created issue in the user's browser: `open <issue URL>`
