@@ -16,6 +16,7 @@ Before doing anything else:
 2. Read `.claude/pm-skills/config.md` if it exists. Extract and store:
    - `feature_areas` — used to focus PRD and docs search
    - `kit_docs` — `yes` or `no` (if `no`, skip the kit-docs MCP search in Agent 2)
+   - `editor` — preferred editor (`vscode`, `cursor`, `zed`, or `system`; default: `system`)
 
 3. **Load tone of voice**: Check if `.claude/pm-skills/tone-of-voice.md` exists.
    - If it exists: read it and write its contents to `.claude/state/shipped-tone.md`
@@ -133,7 +134,11 @@ Write the complete file content and return it.
 Take the copywriter's output and:
 1. Generate a kebab-case filename with today's date: `YYYY-MM-DD-feature-name.md`
 2. Save to `shipped-notes/`
-3. Open the file: `code shipped-notes/<filename>.md`
+3. Open using the editor from config:
+   - `vscode` → `code shipped-notes/<filename>.md`
+   - `cursor` → `cursor shipped-notes/<filename>.md`
+   - `zed` → `zed shipped-notes/<filename>.md`
+   - `system` (or missing) → `open shipped-notes/<filename>.md` (macOS); fall back to `xdg-open` if on Linux
 
 ### Step 5: Developer Changelog (optional)
 

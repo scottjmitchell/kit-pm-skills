@@ -19,6 +19,7 @@ Before doing anything else:
    - `prd_create_as` — whether to create as `issues` or `projects` (default: `issues`)
    - `feature_areas` — PM's owned features (use to focus research)
    - `english` — British or American (default: British)
+   - `editor` — preferred editor (`vscode`, `cursor`, `zed`, or `system`; default: `system`)
 3. Read `.claude/pm-skills/pricing-packaging.md` if it exists — contains plan principles used to fill the Pricing & Packaging section
 
 ### Config check
@@ -125,7 +126,11 @@ Draft the PRD using the template and style guide read above:
 - Note data gaps explicitly rather than making up numbers
 - For the **Pricing & Packaging** section, use `.claude/pm-skills/pricing-packaging.md` to apply the correct plan principles. Use the **full** assessment (background table + quadrant + plan recommendation + competitor packaging) if the user indicated this is a significant new feature; use the **abridged** version (one-line recommendation + brief rationale) if it's a smaller iteration. Draw on the competitive research for the Competitor Packaging sub-section when using the full format.
 - Save to `prds/` with a kebab-case filename (e.g. `prds/automation-folders.md`)
-- Open with `code prds/<filename>.md` then run `code --command markdown.showPreviewToSide`
+- Open using the editor from config:
+  - `vscode` → `code prds/<filename>.md` then `code --command markdown.showPreviewToSide`
+  - `cursor` → `cursor prds/<filename>.md`
+  - `zed` → `zed prds/<filename>.md`
+  - `system` (or missing) → `open prds/<filename>.md` (macOS); fall back to `xdg-open` if on Linux
 
 ### A3. Critical review
 
