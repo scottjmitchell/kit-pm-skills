@@ -1,5 +1,5 @@
 ---
-description: Create or refine a PRD with parallel research and critical review
+description: Create a PRD whenever you're scoping a new feature, writing up an idea, or documenting a product direction. Also use to revise an existing PRD by passing a Linear ticket ID (e.g. "refine ECO-123" or "flesh out PROD-76"). Use this any time the user mentions writing a spec, documenting a feature, exploring a product idea, or wanting to turn a rough Linear ticket into a proper requirements doc.
 argument-hint: <feature or topic> | <ticket ID to refine>
 allowed-tools: [Bash, Read, Write, Glob, Grep, Task, AskUserQuestion]
 ---
@@ -313,9 +313,11 @@ Delete `.claude/state/prd-research-internal.md`
 
 ---
 
-## Post-approval workflow (both paths)
+## Post-approval workflow
 
 Once the user confirms the PRD looks good:
+
+### Path A: New PRD
 
 **If `prd_create_as` is `issues` (default):**
 1. Create a Linear issue in the team **`[prd_team from config]`** with status **Backlog**
@@ -330,3 +332,9 @@ Once the user confirms the PRD looks good:
 3. Include the full PRD content in the project description, **excluding the H1 title**
 4. If `prd_label` is set in config, apply that label to the project
 5. Open the newly created project in the user's browser
+
+### Path B: Revised PRD
+
+Update the existing Linear issue (the ticket ID from `$ARGUMENTS`):
+1. Use `save_issue` to update the issue description with the full revised PRD content, **excluding the H1 title**
+2. Open the updated issue in the user's browser

@@ -1,5 +1,5 @@
 ---
-description: Generate internal Slack post and external developer release notes for a shipped feature
+description: Generate release notes when a feature ships — writes the internal #all-shipped Slack post (with tone matched to the PM's natural voice) and an optional developer changelog entry. Use this any time a feature lands, you want to announce what shipped, write up a release, or create a developer-facing changelog entry.
 argument-hint: <feature name or description>
 allowed-tools: [Bash, Read, Write, Glob, Grep, Task, AskUserQuestion]
 ---
@@ -204,7 +204,7 @@ Write the complete file content and return it.
 Take the copywriter's output and:
 1. Generate a kebab-case filename with today's date: `YYYY-MM-DD-feature-name.md`
 2. Save to `shipped-notes/`
-3. Open the file: `open shipped-notes/<filename>.md`
+3. Open the file: `code shipped-notes/<filename>.md`
 
 ### Step 5: Developer Changelog (optional)
 
