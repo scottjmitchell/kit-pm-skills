@@ -27,6 +27,7 @@ Then restart Claude Code and run setup:
 | `/kit-pm-skills:prd <topic>` | Researches and drafts a new PRD, then runs a critical review |
 | `/kit-pm-skills:prd <ticket ID>` | Fetches an existing Linear ticket and produces a refined PRD |
 | `/kit-pm-skills:ticket <description>` | Drafts and creates a Linear ticket — feature, bug, or spike |
+| `/kit-pm-skills:competitor <topic>` | Researches and produces a competitor analysis — full or quick snapshot |
 | `/kit-pm-skills:shipped <feature>` | Generates an internal Slack post and external developer release note |
 | `/kit-pm-skills:api <request>` | Makes a Kit API request — sets up credentials on first use |
 
@@ -98,6 +99,38 @@ For any request that creates, updates, or deletes data, `/api` shows you exactly
 /api tag subscriber 12345 with the "newsletter" tag
 /api show me my broadcast stats
 /api bulk import subscribers from this CSV: name,email\nSam,sam@example.com
+```
+
+---
+
+## /competitor
+
+Researches and produces a competitor analysis for any feature area or topic.
+
+### Flow
+
+1. Asks two questions: context (PRD context, competitive pressure, exploration, standalone) and depth (full analysis or quick snapshot)
+2. Runs parallel research agents — Kit's current state from internal docs, plus competitor research grouped for efficiency
+3. Drafts the analysis following the style guide: insight-driven, honest about gaps, always includes Kit in comparisons
+4. For full analyses, runs a **lewis** critical review to check for unsupported claims and missing angles
+5. Saves to `competitor-analysis/YYYY-MM-DD-topic.md` and opens it
+
+### Formats
+
+**Full analysis** — complete structured document: TL;DR, competitive landscape (2–3 sentences per competitor), feature comparison table, key insights (interpretation, not facts), gaps & opportunities (honest about where Kit is behind or ahead), and specific actionable recommendations.
+
+**Quick snapshot** — condensed format suited for dropping into a PRD: TL;DR, feature comparison table, and 3–5 key takeaways with implications for Kit.
+
+### Default competitors
+
+ActiveCampaign, Klaviyo, Mailchimp, Beehiiv. Additional competitors are added automatically based on the topic — or specify them directly in your prompt.
+
+### Example usage
+
+```
+/competitor automation organisation features
+/competitor how do competitors handle webhook delivery failures
+/competitor app store and integration marketplace — quick snapshot for my PRD
 ```
 
 ---
