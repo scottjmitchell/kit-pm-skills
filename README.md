@@ -29,7 +29,7 @@ Then restart Claude Code and run setup:
 | `/kit-pm-skills:ticket <description>` | Drafts and creates a Linear ticket — feature, bug, or spike |
 | `/kit-pm-skills:competitor <topic>` | Researches and produces a competitor analysis — full or quick snapshot |
 | `/kit-pm-skills:shipped <feature>` | Generates an internal Slack post and external developer release note |
-| `/kit-pm-skills:tone` | Builds or refreshes your persistent tone of voice reference from Granola meetings |
+| `/kit-pm-skills:tone` | Builds or refreshes your persistent tone of voice reference from Granola meetings and Slack messages |
 | `/kit-pm-skills:weekly` | Drafts your weekly Lattice check-in from Linear, Granola, Slack, and Notion activity |
 | `/kit-pm-skills:api <request>` | Makes a Kit API request — sets up credentials on first use |
 
@@ -239,10 +239,11 @@ Rather than fetching Granola on every run of `/shipped` and `/weekly` (slow), `/
 
 ### Flow
 
-1. Fetches the 10 most recent Granola meetings and analyses the 6 most content-rich transcripts
-2. Extracts three things: a voice profile (3–5 bullets), 8–10 representative samples, and key patterns (vocabulary, rhythm, formality)
-3. Writes or overwrites `.claude/pm-skills/tone-of-voice.md` with a `Last updated` timestamp
-4. Confirms how many samples were captured
+1. Runs two parallel agents — one fetches the 6 most content-rich Granola meeting transcripts, the other searches your recent Slack messages for substantive updates and product decisions
+2. Synthesises both sources into a merged tone file: a voice profile (3–5 bullets), representative samples from meetings and Slack separately, and key patterns — noting where spoken and written voice differ
+3. Writes or overwrites `.claude/pm-skills/tone-of-voice.md` with a `Last updated` timestamp and source list
+4. Confirms how many samples were captured from each source
+5. Falls back gracefully if Slack is unavailable — builds from Granola only
 
 ### When to run
 
