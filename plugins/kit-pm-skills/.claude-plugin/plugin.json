@@ -1,7 +1,7 @@
 {
   "name": "kit-pm-skills",
-  "version": "1.3.0",
-  "description": "PM workflow commands for Kit — generate PRDs with research and critical review, draft competitor analyses, create Linear tickets, produce release notes, and draft KB briefings for shipped features.",
+  "version": "1.4.0",
+  "description": "PM workflow commands for Kit — generate PRDs with research and critical review, draft competitor analyses, create Linear tickets, produce release notes, draft KB briefings, and build interactive product prototypes.",
   "author": {
     "name": "Scott Mitchell",
     "email": "scott@kit.com"

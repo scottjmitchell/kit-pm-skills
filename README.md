@@ -34,6 +34,7 @@ Then restart Claude Code and run setup:
 | `/kit-pm-skills:tone` | Builds or refreshes your persistent tone of voice reference from Granola meetings and Slack messages |
 | `/kit-pm-skills:weekly` | Drafts your weekly Lattice check-in from Linear, Granola, Slack, and Notion activity |
 | `/kit-pm-skills:api <request>` | Makes a Kit API request — sets up credentials on first use |
+| `/kit-pm-skills:prototype <feature>` | Researches a feature area, builds an interactive prototype and overview page, and pushes to prototypes.kit.com |
 
 ---
 
@@ -108,6 +109,50 @@ After `/setup`, a `UserPromptSubmit` hook is added to `.claude/settings.json`. T
 ```
 /update                    # check for updates and apply new settings
 /kit-pm-skills:update      # fully qualified form
+```
+
+---
+
+## /prototype
+
+Builds an interactive product prototype and publishes it to prototypes.kit.com — all in one command.
+
+### Flow
+
+1. Ensures the `Kit/kit-prototypes` repo is available at `/tmp/kit-prototypes` (clones if needed, pulls if exists)
+2. Asks for the feature name, what to validate, and who the primary reviewer is
+3. Runs two background research agents in parallel:
+   - **`kit-knowledge-curator`** — searches `prds/`, `my-features/`, and `competitor-analysis/` for existing context
+   - **`senior-research-analyst`** — researches competitor implementations and UX best practices for the feature type
+4. Plans the prototype content (feature cards, design decisions, validation questions) using both research streams
+5. Builds two files in parallel:
+   - **`prototype.html`** — interactive prototype built by the `ui-expert` agent, following Kit's design system
+   - **`index.html`** — overview page (decisions, features, validation questions) using the webhooks prototype template CSS
+6. Runs a **lewis** review of the design decisions section — applies critical feedback before pushing
+7. Updates the root `index.html` (adds a prototype card) and `README.md` (adds a table row) in kit-prototypes
+8. Commits and pushes to `main` — GitHub Pages deploys automatically within ~1 minute
+9. Prints the live URL and offers to open it
+
+### Output
+
+For each prototype, three files are created in `/tmp/kit-prototypes/[dir-name]/`:
+- `index.html` — overview page with decisions, features, and validation questions
+- `prototype.html` — interactive prototype
+- `README.md` — prototype metadata (status, owner, Linear ticket, URL)
+
+### Design system
+
+`prototype.html` follows Kit's design system: Inter font, CSS variables for the full colour palette, sidebar + main layout, panel patterns. The `ui-expert` agent reads the webhooks prototype for reference.
+
+`index.html` uses the exact CSS from the webhooks overview page, matching the established prototype site style.
+
+### Example usage
+
+```
+/prototype App Store redesign
+/prototype visual automations branching logic
+/prototype sequence scheduling UI
+/kit-pm-skills:prototype email personalisation
 ```
 
 ---
@@ -394,6 +439,9 @@ These agents are included in the plugin and available in your workspace after in
 | `copywriter` | sonnet | Professional editor for PM writing. Polishes PRDs, Slack posts, emails, and release notes. Returns clean output only. |
 | `kit-knowledge-curator` | sonnet | Kit-specific researcher. Searches dev docs MCP, help.kit.com, kit.com, Linear, and internal docs for verified Kit feature state. Used by `/prd` and `/competitor` for the internal research agent — never guesses or speculates. |
 | `coder` | sonnet | Kit API specialist. Executes API requests via curl, handles OAuth token refresh, parses responses, and checks endpoint docs via kit-docs MCP before every call. Used by `/api`. |
+| `ui-expert` | sonnet | Interactive HTML prototype builder. Follows Kit's design system (Inter font, CSS variables, sidebar + main layout) and builds self-contained prototype files fast. Used by `/prototype`. |
+| `senior-research-analyst` | sonnet | Competitor and UX pattern researcher. Finds specific design decisions and patterns from competitor products — not marketing copy. Used by `/competitor` and `/prototype`. |
+| `code-reviewer` | sonnet | HTML prototype reviewer. Checks for broken relative paths, missing cross-file links, and JavaScript errors before pushing to GitHub Pages. Used by `/prototype`. |
 
 `lewis`, `copywriter`, and `kit-knowledge-curator` are aware of the bundled style guides and apply them when reviewing, editing, or producing documents. Running `/setup` creates personalised versions of `lewis` and `copywriter` in `.claude/agents/`. If you already have any of these agents in your workspace, your version takes precedence over the plugin's.
 
